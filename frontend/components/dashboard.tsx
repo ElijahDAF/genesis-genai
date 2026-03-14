@@ -67,6 +67,17 @@ const mockFamilyMembers = [
   { name: "Jake", relationship: "Grandson", initial: "J", color: "bg-(--sage-light)" },
 ]
 
+//helper function
+function formatTime(time: string) {
+  if (!time) return time
+  if (time.toLowerCase().includes("am") || time.toLowerCase().includes("pm")) return time
+  const [hourStr, minutes] = time.split(":")
+  const hour = parseInt(hourStr)
+  const suffix = hour >= 12 ? "PM" : "AM"
+  const displayHour = hour % 12 === 0 ? 12 : hour % 12
+  return `${displayHour}:${minutes} ${suffix}`
+}
+
 export function Dashboard({ elder }: DashboardProps) {
   const [callFilter, setCallFilter] = useState<"week" | "all">("week")
   
@@ -87,7 +98,7 @@ export function Dashboard({ elder }: DashboardProps) {
   const fullName = `${elder.firstName} ${elder.lastName}`
   const initials = `${elder.firstName[0] || "D"}${elder.lastName[0] || "W"}`
   const location = elder.location || "Toronto, ON"
-  const [showMedSchedule, setShowMedSchedule] = useState(false)
+ 
 
   // Calculate meds on track
   const medsOnTrack = elder.medicationSchedule?.length > 0 ? elder.medicationSchedule.length : 3
@@ -109,7 +120,7 @@ export function Dashboard({ elder }: DashboardProps) {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded-full bg-(--sage-light) text-(--sage) text-sm font-medium">
+            <span className="px-3 py-1 rounded-full bg-(--sage-light) text-sm font-medium">
               Active
             </span>
             <Button variant="outline" className="border-border">
@@ -124,29 +135,15 @@ export function Dashboard({ elder }: DashboardProps) {
           <StatCard value="14" label="Calls this month" />
           <StatCard value="47" label="Stories captured" />
           <StatCard value="86%" label="Happy mood days" />
-          <button
-            onClick={() => setShowMedSchedule(!showMedSchedule)}
-            className="bg-white rounded-xl border border-border p-4 text-left hover:border-(--amber) transition-colors"
-          >
-            <div className="text-2xl font-bold text-foreground">{medsOnTrack}</div>
-            <div className="text-sm text-muted-foreground">Health on track (days)</div>
-          </button>
+          <StatCard value={String(medsOnTrack)} label="Health on track (days)" />
         </div>
 
-        {/* Medication Schedule Panel */}
-        {showMedSchedule && (
+          {/* Health Schedule */}
           <div className="bg-white rounded-xl border border-border p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
                 Health Schedule
               </h3>
-              <button
-                onClick={() => setShowMedSchedule(false)}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <span className="sr-only">Close</span>
-                &times;
-              </button>
             </div>
             
             {elder.medicationSchedule && elder.medicationSchedule.length > 0 ? (
@@ -163,15 +160,14 @@ export function Dashboard({ elder }: DashboardProps) {
                       <div>
                         <p className="font-medium text-foreground">{med.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          {med.time} · {med.days.join(", ")}
+                          {formatTime(med.time)} · {med.days.join(", ")}
                         </p>
                       </div>
                     </div>
-                    <span className="px-3 py-1 rounded-full bg-(--sage-light) text-(--sage) text-xs font-medium">
+                    <span className="px-3 py-1 rounded-full bg-(--sage-light) text-xs font-medium">
                       On track
                     </span>
                   </div>
-      
                 ))}
               </div>
             ) : (
@@ -186,8 +182,7 @@ export function Dashboard({ elder }: DashboardProps) {
               </div>
             )}
           </div>
-        )}
-
+    
         {/* Alert — styled as a call log row */}
         <div className="bg-white rounded-xl border border-border p-4 mb-6 flex items-start gap-3">
           <div className="w-8 h-8 rounded-full bg-(--coral-light) flex items-center justify-center shrink-0">
@@ -204,7 +199,7 @@ export function Dashboard({ elder }: DashboardProps) {
               {elder.firstName} mentioned feeling very alone and referenced Harold several times — our AI flagged a mood dip and notified you automatically.
             </p>
           </div>
-          <span className="shrink-0 px-3 py-1.5 rounded-lg bg-(--coral) text-text-xs font-medium">
+          <span className="shrink-0 px-3 py-1.5 rounded-lg bg-(--coral-light) text-text-xs font-medium">
             Message sent
           </span>
         </div>
@@ -217,7 +212,6 @@ export function Dashboard({ elder }: DashboardProps) {
             </span>
             <span className="text-xs text-muted-foreground">· March 10, 2026</span>
           </div>
-          
           <h2 className="text-xl font-semibold text-foreground mb-4">
             The Summer I Taught in Rural Ontario
           </h2>
