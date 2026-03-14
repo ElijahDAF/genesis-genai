@@ -84,11 +84,11 @@ export function RegistrationFlow({ onComplete }: RegistrationFlowProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--cream)] flex flex-col items-center py-8 px-4">
+    <div className="min-h-screen bg-(--cream) flex flex-col items-center py-8 px-4">
       {/* Header */}
       <div className="flex flex-col items-center mb-8">
         <div className="flex items-center gap-2 mb-2">
-          <div className="w-10 h-10 rounded-full bg-[var(--amber)] flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-(--amber) flex items-center justify-center">
             <Heart className="w-5 h-5 text-white" />
           </div>
           <span className="text-xl font-semibold text-foreground">Gentle Assistance</span>
@@ -104,9 +104,9 @@ export function RegistrationFlow({ onComplete }: RegistrationFlowProps) {
               <div
                 className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
                   step.id < currentStep
-                    ? "bg-[var(--amber)] text-white"
+                    ? "bg-(--amber) text-white"
                     : step.id === currentStep
-                    ? "bg-[var(--amber)] text-white"
+                    ? "bg-(--amber) text-white"
                     : "bg-white border-2border-border text-muted-foreground"
                 }`}
               >
@@ -119,7 +119,7 @@ export function RegistrationFlow({ onComplete }: RegistrationFlowProps) {
               <span
                 className={`text-xs mt-1 ${
                   step.id === currentStep
-                    ? "text-[var(--amber-dark)] font-medium"
+                    ? "text-(--amber-dark) font-medium"
                     : "text-muted-foreground"
                 }`}
               >
@@ -128,8 +128,8 @@ export function RegistrationFlow({ onComplete }: RegistrationFlowProps) {
             </div>
             {index < steps.length - 1 && (
               <div
-                className={`w-12 h-0.5 mx-2 mt-[-18px] ${
-                  step.id < currentStep ? "bg-[var(--amber)]" : "bg-[var(--border)]"
+                className={`w-12 h-0.5 mx-2 mt-4.5 ${
+                  step.id < currentStep ? "bg-(--amber)" : "bg-border"
                 }`}
               />
             )}
@@ -298,13 +298,13 @@ function Step1Caregiver({
         />
       </div>
 
-      <div className="h-px bg-[var(--border)]" />
+      <div className="h-px bg-(--border)]" />
 
-      <div className="bg-[var(--consent-bg)] rounded-lg p-4 flex items-start gap-3">
+      <div className="bg-(--consent-bg) rounded-lg p-4 flex items-start gap-3">
         <Checkbox
           checked={consent}
           onCheckedChange={(checked) => setConsent(checked as boolean)}
-          className="mt-0.5 data-[state=checked]:bg-[var(--amber)] data-[state=checked]:border-[var(--amber)]"
+          className="mt-0.5 data-[state=checked]:bg-(--amber) data-[state=checked]:border-(--amber)"
         />
         <label className="text-sm text-foreground leading-relaxed">
           I confirm that I have permission to enroll an elder family member and will obtain their verbal consent before their first call.
@@ -493,7 +493,7 @@ function Step2Elder({
         />
       </div>
 
-      <div className="h-px bg-[var(--border)]" />
+      <div className="h-px bg-border" />
 
       {/* Medication Schedule Section */}
       <div className="space-y-4">
@@ -510,7 +510,7 @@ function Step2Elder({
               variant="outline"
               size="sm"
               onClick={() => setShowAddMed(true)}
-              className="border-[var(--border)]"
+              className="border-border"
             >
               <Plus className="w-4 h-4 mr-1" />
               Add
@@ -520,7 +520,7 @@ function Step2Elder({
 
         {/* Add Medication Form */}
         {showAddMed && (
-          <div className="bg-[var(--cream)] rounded-lg p-4 space-y-4">
+          <div className="bg-(--cream) rounded-lg p-4 space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-foreground">New Health Reminder</span>
               <button
@@ -561,8 +561,8 @@ function Step2Elder({
                     onClick={() => toggleDay(day)}
                     className={`w-9 h-9 rounded-full text-xs font-medium transition-colors ${
                       newMedDays.includes(day)
-                        ? "bg-[var(--amber)] text-white"
-                        : "bg-white borderborder-border text-muted-foreground hover:border-[var(--amber)]"
+                        ? "bg-(--amber) text-white"
+                        : "bg-white borderborder-border text-muted-foreground hover:border-(--amber)"
                     }`}
                   >
                     {day.slice(0, 2)}
@@ -592,8 +592,8 @@ function Step2Elder({
                  rounded-lg p-3"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-[var(--amber-light)] flex items-center justify-center">
-                    <Clock className="w-4 h-4 text-[var(--amber-dark)]" />
+                  <div className="w-8 h-8 rounded-full bg-(--amber-light)] flex items-center justify-center">
+                    <Clock className="w-4 h-4 text-(--amber-dark)" />
                   </div>
                   <div>
                     <p className="text-sm font-medium text-foreground">{med.name}</p>
@@ -616,11 +616,11 @@ function Step2Elder({
 
       <div className="h-px bg--border" />
 
-      <div className="bg-[var(--consent-bg)] rounded-lg p-4 flex items-start gap-3">
+      <div className="bg-(--consent-bg) rounded-lg p-4 flex items-start gap-3">
         <Checkbox
           checked={consent}
           onCheckedChange={(checked) => setConsent(checked as boolean)}
-          className="mt-0.5 data-[state=checked]:bg-[var(--amber)] data-[state=checked]:border-[var(--amber)]"
+          className="mt-0.5 data-[state=checked]:bg-(--amber) data-[state=checked]:border-(--amber)"
         />
         <label className="text-sm text-foreground leading-relaxed">
           I confirm that {firstName || "they"} {firstName ? "has" : "have"} verbally consented to receiving AI-assisted phone calls through Gentle Assistance and having call summaries shared with me.
@@ -628,7 +628,7 @@ function Step2Elder({
       </div>
 
       <div className="flex justify-between">
-        <Button variant="outline" onClick={onBack} className="border-[var(--border)]">
+        <Button variant="outline" onClick={onBack} className="border-border)">
           <ArrowLeft className="w-4 h-4 mr-1" /> Back
         </Button>
         <Button
@@ -670,10 +670,10 @@ function Step3Confirm({
       </div>
 
       {/* Connection Visualization */}
-      <div className="bg-[var(--cream)] rounded-xl p-6">
+      <div className="bg-(--cream) rounded-xl p-6">
         <div className="flex items-center justify-center gap-8">
           <div className="flex flex-col items-center">
-            <div className="w-16 h-16 rounded-full bg-[var(--amber-light)] flex items-center justify-center text-2xl font-semibold text-[var(--amber-dark)]">
+            <div className="w-16 h-16 rounded-full bg-(--amber-light) flex items-center justify-center text-2xl font-semibold text-(--amber-dark)">
               {caregiverName.split(" ").map(n => n[0]).join("").slice(0, 2)}
             </div>
             <span className="mt-2 text-sm font-medium text-foreground">{caregiverName}</span>
@@ -682,15 +682,15 @@ function Step3Confirm({
           
           <div className="flex flex-col items-center">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-0.5 bg-[var(--amber)]" />
-              <Heart className="w-5 h-5 text-[var(--amber)]" />
-              <div className="w-8 h-0.5 bg-[var(--amber)]" />
+              <div className="w-8 h-0.5 bg-(--amber)" />
+              <Heart className="w-5 h-5 text-(--amber)" />
+              <div className="w-8 h-0.5 bg-(--amber)" />
             </div>
             <span className="text-xs text-muted-foreground mt-1">Connected</span>
           </div>
           
           <div className="flex flex-col items-center">
-            <div className="w-16 h-16 rounded-full bg-[var(--amber-light)] flex items-center justify-center text-2xl font-semibold text-[var(--amber-dark)]">
+            <div className="w-16 h-16 rounded-full bg-(--amber-light) flex items-center justify-center text-2xl font-semibold text-(--amber-dark)">
               {elderName.split(" ").map(n => n[0]).join("").slice(0, 2)}
             </div>
             <span className="mt-2 text-sm font-medium text-foreground">{elderName}</span>
@@ -705,8 +705,8 @@ function Step3Confirm({
         
         <div className="space-y-3">
           <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-full bg-[var(--sage-light)] flex items-center justify-center flex-shrink-0">
-              <Phone className="w-4 h-4 text-[var(--sage)]" />
+            <div className="w-8 h-8 rounded-full bg-(--sage-light) flex items-center justify-center shrink-0">
+              <Phone className="w-4 h-4 text-(--sage)" />
             </div>
             <div>
               <p className="text-sm font-medium text-foreground">First call in 10 minutes</p>
@@ -717,8 +717,8 @@ function Step3Confirm({
           </div>
           
           <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-full bg-[var(--amber-light)] flex items-center justify-center flex-shrink-0">
-              <Calendar className="w-4 h-4 text-[var(--amber-dark)]" />
+            <div className="w-8 h-8 rounded-full bg-(--amber-light) flex items-center justify-center shrink-0">
+              <Calendar className="w-4 h-4 text-(--amber-dark)" />
             </div>
             <div>
               <p className="text-sm font-medium text-foreground">Weekly story PDFs</p>
@@ -729,8 +729,8 @@ function Step3Confirm({
           </div>
           
           <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-full bg-[var(--coral-light)] flex items-center justify-center flex-shrink-0">
-              <Heart className="w-4 h-4 text-[var(--coral)]" />
+            <div className="w-8 h-8 rounded-full bg-(--coral-light) flex items-center justify-center shrink-0">
+              <Heart className="w-4 h-4 text-(--coral)" />
             </div>
             <div className="flex items-center gap-2">
               <div>
@@ -743,7 +743,7 @@ function Step3Confirm({
                 <button
                   onClick={() => setSmsAlerts(!smsAlerts)}
                   className={`relative w-10 h-6 rounded-full transition-colors ${
-                    smsAlerts ? "bg-[var(--sage)]" : "bg-[var(--border)]"
+                    smsAlerts ? "bg-(--sage)" : "bg-border"
                   }`}
                 >
                   <span
@@ -758,15 +758,15 @@ function Step3Confirm({
         </div>
       </div>
 
-      <div className="h-px bg-[var(--border)]" />
+      <div className="h-px bg-border" />
 
       <div className="flex justify-between">
-        <Button variant="outline" onClick={onBack} className="border-[var(--border)]">
+        <Button variant="outline" onClick={onBack} className="border-border">
           <ArrowLeft className="w-4 h-4 mr-1" /> Back
         </Button>
         <Button
           onClick={onNext}
-          className="bg-[var(--sage)] text-white hover:bg-[var(--sage)]/90"
+          className="bg-(--sage) text-white hover:bg-(--sage)/90"
         >
           Confirm & start <ArrowRight className="w-4 h-4 ml-1" />
         </Button>
@@ -785,8 +785,8 @@ function Step4Done({
 }) {
   return (
     <div className="text-center space-y-6 py-4">
-      <div className="w-20 h-20 rounded-full bg-[var(--sage-light)] flex items-center justify-center mx-auto">
-        <Check className="w-10 h-10 text-[var(--sage)]" />
+      <div className="w-20 h-20 rounded-full bg-(--sage-light) flex items-center justify-center mx-auto">
+        <Check className="w-10 h-10 text-(--sage)" />
       </div>
       
       <div>
@@ -796,19 +796,19 @@ function Step4Done({
         </p>
       </div>
 
-      <div className="bg-[var(--cream)] rounded-xl p-4 text-left space-y-3">
+      <div className="bg-(--cream) rounded-xl p-4 text-left space-y-3">
         <p className="text-sm text-foreground font-medium">What to expect:</p>
         <ul className="text-sm text-muted-foreground space-y-2">
           <li className="flex items-start gap-2">
-            <span className="text-[var(--sage)]">•</span>
+            <span className="text-(--sage)">•</span>
             A friendly AI will call {elderName.split(" ")[0]} and have a warm conversation
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-[var(--sage)]">•</span>
+            <span className="text-(--sage)">•</span>
             After each call, you&apos;ll see a summary on your dashboard
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-[var(--sage)]">•</span>
+            <span className="text-(--sage)">•</span>
             Stories and memories will be captured and formatted for you weekly
           </li>
         </ul>

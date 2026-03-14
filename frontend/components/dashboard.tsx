@@ -189,13 +189,13 @@ export function Dashboard({ elder }: DashboardProps) {
         )}
 
         {/* Alert — styled as a call log row */}
-        <div className="bg-white rounded-xl border border-[var(--border)] p-4 mb-6 flex items-start gap-3">
-          <div className="w-8 h-8 rounded-full bg-[var(--coral-light)] flex items-center justify-center flex-shrink-0">
-            <AlertCircle className="w-4 h-4 text-[var(--coral)]" />
+        <div className="bg-white rounded-xl border border-border p-4 mb-6 flex items-start gap-3">
+          <div className="w-8 h-8 rounded-full bg-(--coral-light) flex items-center justify-center shrink-0">
+            <AlertCircle className="w-4 h-4 text-(--coral)" />
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2 text-sm mb-1">
-              <span className="font-medium text-[var(--coral)]">Alert</span>
+              <span className="font-medium text-(--coral)">Alert</span>
               <span className="text-muted-foreground">Tue Mar 11</span>
               <span className="text-muted-foreground">·</span>
               <span className="text-muted-foreground">8:47 AM</span>
@@ -204,7 +204,7 @@ export function Dashboard({ elder }: DashboardProps) {
               {elder.firstName} mentioned feeling very alone and referenced Harold several times — our AI flagged a mood dip and notified you automatically.
             </p>
           </div>
-          <span className="flex-shrink-0 px-3 py-1.5 rounded-lg bg-[var(--coral)] text-white text-xs font-medium">
+          <span className="shrink-0 px-3 py-1.5 rounded-lg bg-(--coral) text-text-xs font-medium">
             Message sent
           </span>
         </div>
