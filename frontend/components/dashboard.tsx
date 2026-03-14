@@ -10,13 +10,18 @@ import {
   Plus,
   Phone,
   Heart,
-  Clock
+  Clock,
+  ArrowLeft,
+  Loader2
 } from "lucide-react"
 import type { ElderData, CaregiverData } from "@/app/page"
+import { useVapi } from "@/components/vapi-call-provider"
+import type { ElderLike } from "@/components/vapi-call-provider"
 
 interface DashboardProps {
   elder: ElderData
   caregiver: CaregiverData
+  onBackToList?: () => void
 }
 
 // Mock data for the demo - pre-loaded with Dorothy's persona
@@ -78,9 +83,27 @@ function formatTime(time: string) {
   return `${displayHour}:${minutes} ${suffix}`
 }
 
-export function Dashboard({ elder }: DashboardProps) {
+export function Dashboard({ elder, onBackToList }: DashboardProps) {
   const [callFilter, setCallFilter] = useState<"week" | "all">("week")
-  
+  const { startCall, endCall, isActive, isConnecting, error } = useVapi()
+
+  const elderLike: ElderLike = {
+    name: `${elder.firstName} ${elder.lastName}`.trim(),
+    age: (() => {
+      if (!elder.dateOfBirth) return 81
+      const birthDate = new Date(elder.dateOfBirth)
+      const today = new Date()
+      let age = today.getFullYear() - birthDate.getFullYear()
+      const m = today.getMonth() - birthDate.getMonth()
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--
+      return age
+    })(),
+    biography: elder.location ? `Lives in ${elder.location}. ${elder.thingsTheyLove || ""}`.trim() : elder.thingsTheyLove || "",
+    hobbies: elder.thingsTheyLove ? elder.thingsTheyLove.split(",").map((s) => s.trim()).filter(Boolean) : [],
+    medications: (elder.medicationSchedule ?? []).map((m) => ({ name: m.name, time: m.time })),
+    personality_notes: elder.thingsTheyLove ?? "",
+  }
+
   // Calculate age from DOB
   const calculateAge = (dob: string) => {
     if (!dob) return 81 // Default for demo
@@ -109,6 +132,11 @@ export function Dashboard({ elder }: DashboardProps) {
         {/* Header */}
         <header className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
+            {onBackToList && (
+              <Button variant="ghost" size="icon" onClick={onBackToList} className="shrink-0">
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+            )}
             <div className="w-14 h-14 rounded-full bg-(--amber-light) flex items-center justify-center text-xl font-semibold text-(--amber-dark)">
               {initials}
             </div>
@@ -123,12 +151,26 @@ export function Dashboard({ elder }: DashboardProps) {
             <span className="px-3 py-1 rounded-full bg-(--sage-light) text-sm font-medium">
               Active
             </span>
+            <Button
+              className="bg-[var(--sage)] hover:bg-[var(--sage)]/90"
+              onClick={() => startCall(elderLike)}
+              disabled={isConnecting || isActive}
+            >
+              {isConnecting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Phone className="w-4 h-4 mr-2" />}
+              {isActive ? "On call…" : "Start call"}
+            </Button>
             <Button variant="outline" className="border-border">
               <Settings className="w-4 h-4 mr-2" />
               Settings
             </Button>
           </div>
         </header>
+
+        {error && (
+          <div className="mb-4 p-3 rounded-lg bg-(--coral-light) text-(--coral) text-sm">
+            {error}
+          </div>
+        )}
 
         {/* Stats Grid */}
         <div className="grid grid-cols-4 gap-4 mb-6">
@@ -305,6 +347,17 @@ export function Dashboard({ elder }: DashboardProps) {
             </div>
           </div>
         </div>
+
+        {isActive && (
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+            <Button
+              onClick={endCall}
+              className="bg-(--coral) hover:bg-(--coral)/90 shadow-lg"
+            >
+              End call
+            </Button>
+          </div>
+        )}
 
         {/* Footer */}
         <footer className="mt-8 pt-6 border-t border-border flex items-center justify-between">

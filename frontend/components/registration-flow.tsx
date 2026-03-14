@@ -16,6 +16,7 @@ import type { ElderData, CaregiverData, MedicationReminder } from "@/app/page"
 
 interface RegistrationFlowProps {
   onComplete: (elder: ElderData, caregiver: CaregiverData) => void
+  onBack?: () => void
 }
 
 const steps = [
@@ -25,7 +26,7 @@ const steps = [
   { id: 4, name: "Done" },
 ]
 
-export function RegistrationFlow({ onComplete }: RegistrationFlowProps) {
+export function RegistrationFlow({ onComplete, onBack }: RegistrationFlowProps) {
   const [currentStep, setCurrentStep] = useState(1)
   
   // Caregiver data
@@ -59,6 +60,8 @@ export function RegistrationFlow({ onComplete }: RegistrationFlowProps) {
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1)
+    } else if (onBack) {
+      onBack()
     }
   }
 
