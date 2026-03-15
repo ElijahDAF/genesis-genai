@@ -1,9 +1,20 @@
 import { NextRequest, NextResponse } from "next/server"
-import { updateCallLog, createMemory } from "@/app/lib/supabase"
+import { updateCallLog, createMemory, getCallLogByVapiCallId } from "@/app/lib/supabase"
+import { getCallDetails } from "@/app/lib/vapi"
 
 // TODO: add real signature verification if you configure a webhook secret
 function verifyWebhook(_req: NextRequest): boolean {
   return true
+}
+
+/** VAPI structured output shape from your assistant (mood, mood_notes, meds_taken, has_story, chapter_title, chapter_content) */
+type EverlyStructuredResult = {
+  mood?: string
+  mood_notes?: string
+  meds_taken?: boolean
+  has_story?: boolean
+  chapter_title?: string
+  chapter_content?: string
 }
 
 export async function POST(req: NextRequest) {
@@ -13,91 +24,160 @@ export async function POST(req: NextRequest) {
     }
 
     const payload = await req.json()
-    console.log("VAPI Webhook received:", payload)
+    console.log("VAPI Webhook received:", payload?.message?.type, payload?.message?.call?.id)
 
     const { message } = payload
+    if (!message) {
+      return NextResponse.json({ received: true })
+    }
 
     switch (message.type) {
       case "call-ended":
+      case "end-of-call-report":
         await handleCallEnded(message)
         break
       case "call-started":
         await handleCallStarted(message)
         break
       case "transcript":
-        // optional: handle streaming transcripts
         break
       default:
         console.log("Unhandled webhook type:", message.type)
     }
 
     return NextResponse.json({ received: true })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Webhook processing error:", error)
-    return NextResponse.json({ error: error?.message ?? "Webhook error" }, { status: 500 })
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Webhook error" },
+      { status: 500 }
+    )
   }
 }
 
-async function handleCallStarted(message: any) {
-  const { call } = message
-  console.log("Call started:", call.id)
-  // Optionally update initial started_at here if you don't set it on initiate
+async function handleCallStarted(message: { call?: { id?: string } }) {
+  const callId = message.call?.id
+  if (callId) console.log("Call started:", callId)
 }
 
-async function handleCallEnded(message: any) {
-  const { call } = message
+async function handleCallEnded(message: {
+  call?: {
+    id?: string
+    durationSeconds?: number
+    transcript?: string
+    summary?: string
+    artifact?: { structuredOutputs?: Record<string, { name?: string; result?: unknown }> }
+    analysis?: { moodScore?: number; memories?: unknown[]; summary?: string }
+  }
+}) {
+  const call = message.call
+  if (!call?.id) {
+    console.warn("handleCallEnded: missing call.id")
+    return
+  }
 
-  const updates = {
+  const vapiCallId = call.id
+
+  // We only update if we have a call_log (created when call was started via our API or after frontend registers)
+  const existingLog = await getCallLogByVapiCallId(vapiCallId)
+  if (!existingLog) {
+    console.log("No call_log for vapi_call_id:", vapiCallId, "- skipping (register in-browser calls via POST /api/call/register)")
+    return
+  }
+
+  const elderId = existingLog.elder_id
+
+  // 1) Try structured outputs from webhook payload (artifact may be present on end-of-call-report)
+  let structured: EverlyStructuredResult | null = extractStructuredFromPayload(call)
+
+  // 2) If not in payload, fetch call from VAPI API (structured outputs are ready a few seconds after call ends)
+  if (!structured) {
+    await new Promise((r) => setTimeout(r, 5000))
+    try {
+      const fullCall = await getCallDetails(vapiCallId)
+      structured = extractStructuredFromPayload(fullCall)
+    } catch (e) {
+      console.warn("Failed to fetch VAPI call for structured outputs:", e)
+    }
+  }
+
+  const moodScore = moodWordToScore(structured?.mood)
+  const medicationConfirmed = structured?.meds_taken ?? fallbackMedicationConfirmed(call)
+  const summary =
+    (structured?.mood_notes ? `Mood: ${structured.mood_notes}. ` : "") +
+    (call.summary || call.analysis?.summary || "")
+  const concernFlags = buildConcernFlags(call, structured?.mood)
+
+  const updates: Record<string, unknown> = {
     ended_at: new Date().toISOString(),
-    duration_seconds: call.durationSeconds || 0,
-    transcript: call.transcript || "",
-    summary: call.summary || "",
-    mood_score: extractMoodScore(call),
-    medication_confirmed: checkMedicationConfirmed(call),
-    concern_flags: extractConcerns(call),
-    memories_extracted: extractMemories(call),
+    duration_seconds: call.durationSeconds ?? 0,
+    transcript: call.transcript ?? "",
+    summary: summary.trim() || (call.summary ?? ""),
+    mood_score: moodScore,
+    medication_confirmed: medicationConfirmed,
+    concern_flags: concernFlags,
+    memories_extracted: structured?.has_story && structured?.chapter_content
+      ? [{ title: structured.chapter_title, text: structured.chapter_content }]
+      : fallbackMemoriesExtracted(call),
   }
 
-  // NOTE: we keyed our call_logs by internal id earlier;
-  // here we look up by vapi_call_id (call.id)
-  await updateCallLog(call.id, updates)
+  await updateCallLog(vapiCallId, updates as Parameters<typeof updateCallLog>[1])
 
-  const memories = extractMemories(call)
-  for (const memory of memories) {
+  // 3) If structured output says there was a story, create a memory row
+  if (structured?.has_story && structured?.chapter_content && elderId) {
     await createMemory({
-      call_id: call.id,
-      elder_id: call.customer?.id,
-      memory_text: memory.text,
-      category: memory.category,
-      sentiment: memory.sentiment,
+      elder_id: elderId,
+      call_id: vapiCallId,
+      memory_text: structured.chapter_content,
+      category: structured.chapter_title || "Story",
+      date_mentioned: new Date().toISOString().slice(0, 10),
+      sentiment: structured.mood ?? "neutral",
     })
   }
 
-  console.log("Call ended and processed:", call.id)
+  console.log("Call ended and processed:", vapiCallId)
 }
 
-function extractMoodScore(call: any): number {
-  return call.analysis?.moodScore ?? 3
+/** Read Everly structured result from VAPI call.artifact.structuredOutputs (any output that has mood / meds_taken) */
+function extractStructuredFromPayload(call: any): EverlyStructuredResult | null {
+  const outputs = call?.artifact?.structuredOutputs ?? call?.structuredOutputs
+  if (!outputs || typeof outputs !== "object") return null
+
+  for (const entry of Object.values(outputs) as { name?: string; result?: unknown }[]) {
+    const r = entry?.result
+    if (r && typeof r === "object" && ("mood" in r || "meds_taken" in r)) {
+      return r as EverlyStructuredResult
+    }
+  }
+  return null
 }
 
-function checkMedicationConfirmed(call: any): boolean {
-  const transcript = (call.transcript ?? "").toLowerCase()
-  return transcript.includes("taken") || transcript.includes("yes")
+function moodWordToScore(mood?: string): number {
+  if (!mood) return 3
+  const m = mood.toLowerCase()
+  if (["happy", "content", "cheerful"].some((w) => m.includes(w))) return 5
+  if (["sad", "lonely", "anxious", "frustrated", "confused"].some((w) => m.includes(w))) return 1
+  if (["tired", "nostalgic"].some((w) => m.includes(w))) return 3
+  return 3
 }
 
-function extractConcerns(call: any): string[] {
-  const concerns: string[] = []
-  const transcript = (call.transcript ?? "").toLowerCase()
-
-  if (transcript.includes("pain")) concerns.push("pain mentioned")
-  if (transcript.includes("fall")) concerns.push("fall risk")
-  if (transcript.includes("dizzy")) concerns.push("dizziness")
-  if (transcript.includes("sad") || transcript.includes("lonely")) concerns.push("mood concern")
-
-  return concerns
+function fallbackMedicationConfirmed(call: any): boolean {
+  const t = (call?.transcript ?? "").toLowerCase()
+  return t.includes("taken") || t.includes("yes")
 }
 
-function extractMemories(call: any): any[] {
-  return call.analysis?.memories ?? []
+function buildConcernFlags(call: any, mood?: string): string[] {
+  const flags: string[] = []
+  const t = (call?.transcript ?? "").toLowerCase()
+  if (t.includes("pain")) flags.push("pain mentioned")
+  if (t.includes("fall")) flags.push("fall risk")
+  if (t.includes("dizzy")) flags.push("dizziness")
+  const m = (mood ?? "").toLowerCase()
+  if (["sad", "lonely", "anxious"].some((w) => m.includes(w))) flags.push("mood concern")
+  return flags
+}
+
+function fallbackMemoriesExtracted(call: any): any[] {
+  return call?.analysis?.memories ?? []
 }
 
