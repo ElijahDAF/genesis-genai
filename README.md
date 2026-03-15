@@ -4,24 +4,15 @@
 
 AI companion for seniors that captures life stories and keeps families connected through regular voice calls, mood insights, and beautiful weekly story excerpts.
 
-[![Demo](https://img.shields.io/badge/🎥%20Watch%20Demo-View%20Now-blue)](your-demo-link-here)
-[![Live](https://img.shields.io/badge/🚀%20Live%20Site-Visit-green)](your-live-url-here)
-
-> **Everly helps families care for aging loved ones through AI phone conversations.**
-> 
-> Caregivers set up a profile with medications, routines, and life stories. Our AI calls the elder at scheduled times — reminding about medications, providing companionship, and capturing memories. After each call, caregivers get a summary: mood, medication adherence, and any concerns. Over time we build a living memory archive.
-
 ---
 
-## 📋 Hackathon Submission
+## The problem
 
-**For detailed submission information, see [SUBMISSION.md](./SUBMISSION.md)**
+1 in 4 seniors experience chronic loneliness. 70% of family histories are never recorded.
+Most families live too far away to call every day — and even when they do, the conversations
+stay in their heads and disappear.
 
-- 🏆 **Built for:** GenAI Genesis Hackathon
-- 🤖 **Technologies:** Next.js, TypeScript, Supabase, VAPI (Voice AI), Tailwind CSS
-- ⏱️ **Time to MVP:** 24 hours
-
----
+Everly fixes both.
 
 ---
 
@@ -349,4 +340,4 @@ Your friends can't access `localhost:3001` on your computer. To share Everly wit
 
 ## License
 
-MIT (or your choice).
+MIT.
