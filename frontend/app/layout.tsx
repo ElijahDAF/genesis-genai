@@ -33,7 +33,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${montserrat.variable} ${inter.variable} ${robotoMono.variable}`}>
+    <html lang="en" className={`${montserrat.variable} ${inter.variable} ${robotoMono.variable} bg-background`}>
       <body className="min-h-screen bg-background font-sans antialiased relative">
         <div className="grain-overlay" aria-hidden />
         <div className="relative z-10">

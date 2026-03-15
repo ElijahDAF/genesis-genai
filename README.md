@@ -10,15 +10,15 @@ Built for the **GenAI Genesis Hackathon** (Next.js, Supabase, VAPI, Anthropic/Cl
 
 ## Which number does VAPI call?
 
-- **In-browser (current demo):** When you click **Start call** on the dashboard or elders list, the call runs **in your browser** (mic + speakers). **No phone number is called.** You’re talking to the AI directly on your device. The elder’s `phone` in the database is **not** used. If you see a call in the VAPI dashboard with ~30 seconds, that is this **web call** (browser session), not an outbound call to any number.
-- **Outbound phone calls (optional):** The backend has an API route `POST /api/call` that uses VAPI’s **phone** product. Only if you trigger that (e.g. `curl -X POST .../api/call -d '{"elderId":"..."}'` or a “Call their phone” button), then:
-  - **VAPI calls the elder’s phone number** (`elder.phone` from Supabase).
-  - The call is placed **from** the VAPI phone number linked to `VAPI_PHONE_NUMBER_ID` **to** the elder’s number.
-  So for real phone calls, the number that gets called is the **elder’s** number stored in the database. In the VAPI dashboard, an outbound phone call will show a destination number; a web call will not.
+- **In-browser (current demo):** When you click **Start call** on the dashboard or elders list, the call runs **in your browser** (mic + speakers). **No phone number is called.** You're talking to the AI directly on your device. The elder's `phone` in the database is **not** used. If you see a call in the VAPI dashboard with ~30 seconds, that is this **web call** (browser session), not an outbound call to any number.
+- **Outbound phone calls (optional):** The backend has an API route `POST /api/call` that uses VAPI's **phone** product. Only if you trigger that (e.g. `curl -X POST .../api/call -d '{"elderId":"..."}'` or a "Call their phone" button), then:
+  - **VAPI calls the elder's phone number** (`elder.phone` from Supabase).
+  - The call is placed **from** the VAPI phone number linked to `VAPI_PHONE_NUMBER_ID` **to** the elder's number.
+  So for real phone calls, the number that gets called is the **elder's** number stored in the database. In the VAPI dashboard, an outbound phone call will show a destination number; a web call will not.
 
 ---
 
-## Debugging: “Call starts but nothing happens”
+## Debugging: "Call starts but nothing happens"
 
 If you click **Start call** and the VAPI dashboard shows time passing but you hear/see nothing in the browser:
 
@@ -29,9 +29,9 @@ If you click **Start call** and the VAPI dashboard shows time passing but you he
    - Ensure the tab is not muted (no mute icon on the tab).
    - Try headphones or a different speaker in case output is going to another device.
 4. **Check the assistant in VAPI Dashboard:**
-   - Assistant has a **first message** (e.g. “Hello {{elder_name}}! How are you today?”) so the AI speaks first.
+   - Assistant has a **first message** (e.g. "Hello {{elder_name}}! How are you today?") so the AI speaks first.
    - **Voice** is set (e.g. ElevenLabs) and the voice ID is valid.
-5. **VAPI Dashboard → Calls:** Open the call that shows ~30s. Check if it’s **Web** or **Phone**. For Web, there is no “number called”; for Phone, the destination number is the elder’s `phone` from your database.
+5. **VAPI Dashboard → Calls:** Open the call that shows ~30s. Check if it's **Web** or **Phone**. For Web, there is no "number called"; for Phone, the destination number is the elder's `phone` from your database.
 
 ---
 
@@ -75,7 +75,7 @@ Optional (for outbound phone calls via `/api/call`):
 
 ### 3. Database (Supabase)
 
-In the Supabase SQL Editor, run the schema that creates `elders`, `call_logs`, and `memories` (see hackathon checklist or `docs/` if you have it). Then add at least one elder (or use “Add elder” in the app).
+In the Supabase SQL Editor, run the schema that creates `elders`, `call_logs`, and `memories` (see hackathon checklist or `docs/` if you have it). Then add at least one elder (or use "Add elder" in the app).
 
 ### 4. Run the app
 
@@ -83,7 +83,69 @@ In the Supabase SQL Editor, run the schema that creates `elders`, `call_logs`, a
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). You’ll see the elders list; use **Start call** for an in-browser demo call (grant mic when prompted).
+Open [http://localhost:3000](http://localhost:3000). You'll see the elders list; use **Start call** for an in-browser demo call (grant mic when prompted).
+
+---
+
+## VAPI Webhook Setup (CRITICAL - Required for call data!)
+
+**The Problem:** VAPI sends call data (transcripts, summaries, memories) via webhooks to your server. But during local development, your `localhost` isn't accessible from the internet, so VAPI can't deliver the webhook.
+
+**The Solution:** Use ngrok to create a public URL that tunnels to your local server.
+
+### Step-by-step ngrok setup:
+
+1. **Install ngrok:**
+   ```bash
+   # macOS
+   brew install ngrok
+   
+   # Or download from https://ngrok.com/download
+   ```
+
+2. **Create a free ngrok account** at [ngrok.com](https://ngrok.com) and get your authtoken
+
+3. **Configure ngrok:**
+   ```bash
+   ngrok config add-authtoken YOUR_AUTHTOKEN
+   ```
+
+4. **Start your Next.js dev server:**
+   ```bash
+   npm run dev
+   # Should run on port 3001
+   ```
+
+5. **In a new terminal, start ngrok:**
+   ```bash
+   ngrok http 3001
+   ```
+
+6. **Copy the forwarding URL** (looks like `https://abc123.ngrok.io`)
+
+7. **Set up VAPI Dashboard:**
+   - Go to [VAPI Dashboard](https://dashboard.vapi.ai) → Your Assistant → Settings
+   - Under **Webhook URL**, enter: `https://YOUR_NGROK_URL/api/webhook/vapi`
+   - Save changes
+
+8. **Test it:**
+   - Make a call from your dashboard
+   - Check your terminal running the Next.js server - you should see `[VAPI Webhook]` logs
+   - The call data will now be saved to Supabase!
+
+### Alternative: Deploy to Vercel for testing
+
+If ngrok feels cumbersome, you can deploy to Vercel and test there:
+
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy
+vercel
+```
+
+Then set your production URL (e.g., `https://your-app.vercel.app/api/webhook/vapi`) in the VAPI Dashboard webhook settings.
 
 ---
 
@@ -108,7 +170,7 @@ genesis-genai/
 
 - **Elders list** — Loads elders from Supabase via `GET /api/elders`; **Start call** uses the VAPI Web SDK (no phone number).
 - **Dashboard** — Single-elder view with **Start call** (same in-browser flow) and **Back to list**.
-- **Registration** — “Add elder” flow; saves to Supabase via `POST /api/elders`.
+- **Registration** — "Add elder" flow; saves to Supabase via `POST /api/elders`.
 
 ---
 
@@ -116,13 +178,61 @@ genesis-genai/
 
 1. Create an assistant in [VAPI Dashboard](https://dashboard.vapi.ai) with system prompt using variables like `{{elder_name}}`, `{{elder_age}}`, `{{biography}}`, `{{medications}}`.
 2. For **in-browser demo**: add your **public** key and **assistant ID** to `NEXT_PUBLIC_VAPI_*` in `.env.local`.
-3. For **phone calls**: add a phone number in VAPI, set `VAPI_PHONE_NUMBER_ID`, and call `POST /api/call` with `{ elderId }`; VAPI will call the **elder’s** phone number.
+3. For **phone calls**: add a phone number in VAPI, set `VAPI_PHONE_NUMBER_ID`, and call `POST /api/call` with `{ elderId }`; VAPI will call the **elder's** phone number.
+
+### Assistant Configuration Tips
+
+To get the most out of Everly, configure your VAPI assistant with these settings:
+
+**System Prompt Template:**
+```
+You are Everly, a warm and patient AI companion calling {{elder_name}}. 
+They are {{elder_age}} years old. Here's what you should know about them:
+{{biography}}
+
+Their hobbies include: {{hobbies}}
+Family members: {{family_members}}
+Medications to check on: {{medications}}
+Personality notes: {{personality_notes}}
+
+Be gentle, speak slowly, and ask about their day. Check if they've taken their 
+medications naturally in conversation. Encourage them to share a memory or story.
+Always be respectful and warm.
+```
+
+**Structured Output (for memory capture):**
+Configure structured outputs in VAPI Dashboard to capture:
+- `mood` (string: happy, content, sad, lonely, anxious, tired, nostalgic)
+- `mood_notes` (string: brief explanation)
+- `meds_taken` (boolean)
+- `has_story` (boolean: did they share a memory?)
+- `chapter_title` (string: title of the story)
+- `chapter_content` (string: the full story they shared)
+
+---
+
+## Troubleshooting
+
+### "I'm not getting any data back from VAPI"
+
+1. **Check webhook URL is set** in VAPI Dashboard
+2. **Check ngrok is running** and URL hasn't changed (ngrok free URLs change each session)
+3. **Check server logs** for `[VAPI Webhook]` entries
+4. **Verify call is being registered** - when you start a call, check if `POST /api/call/register` is called
+5. **Check Supabase** - look at the `call_logs` table to see if entries are being created/updated
+
+### "Webhook is being received but no data is saved"
+
+1. Check structured outputs are configured in VAPI Dashboard
+2. Check the assistant is actually having conversations (not just hanging up immediately)
+3. Look at the full payload in logs to see what's being sent
+4. Verify your Supabase keys have write permissions
 
 ---
 
 ## 30-second pitch
 
-*“Everly helps families care for aging loved ones through AI phone conversations. Caregivers set up a profile with medications, routines, and life stories. Our AI calls the elder at scheduled times — reminding about medications, providing companionship, and capturing memories. After each call, caregivers get a summary: mood, medication adherence, and any concerns. Over time we build a living memory archive. We’re not just reducing loneliness; we’re preserving a person before time erases the details.”*
+*"Everly helps families care for aging loved ones through AI phone conversations. Caregivers set up a profile with medications, routines, and life stories. Our AI calls the elder at scheduled times — reminding about medications, providing companionship, and capturing memories. After each call, caregivers get a summary: mood, medication adherence, and any concerns. Over time we build a living memory archive. We're not just reducing loneliness; we're preserving a person before time erases the details."*
 
 ---
 

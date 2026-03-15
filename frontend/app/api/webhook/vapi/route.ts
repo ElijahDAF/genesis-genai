@@ -24,9 +24,16 @@ export async function POST(req: NextRequest) {
     }
 
     const payload = await req.json()
-    console.log("VAPI Webhook received:", payload?.message?.type, payload?.message?.call?.id)
-
     const { message } = payload
+
+    // Log full payload for debugging (all data coming back from VAPI)
+    console.log("[VAPI Webhook] Full payload:", JSON.stringify(payload, null, 2))
+    if (message?.call) {
+      console.log("[VAPI Webhook] call object:", JSON.stringify(message.call, null, 2))
+    }
+    if (message?.call?.artifact) {
+      console.log("[VAPI Webhook] call.artifact:", JSON.stringify(message.call.artifact, null, 2))
+    }
     if (!message) {
       return NextResponse.json({ received: true })
     }
@@ -89,13 +96,16 @@ async function handleCallEnded(message: {
 
   // 1) Try structured outputs from webhook payload (artifact may be present on end-of-call-report)
   let structured: EverlyStructuredResult | null = extractStructuredFromPayload(call)
+  console.log("[VAPI Webhook] Structured from payload:", structured)
 
   // 2) If not in payload, fetch call from VAPI API (structured outputs are ready a few seconds after call ends)
   if (!structured) {
     await new Promise((r) => setTimeout(r, 5000))
     try {
       const fullCall = await getCallDetails(vapiCallId)
+      console.log("[VAPI Webhook] Full call from API:", JSON.stringify(fullCall, null, 2))
       structured = extractStructuredFromPayload(fullCall)
+      console.log("[VAPI Webhook] Structured from API fetch:", structured)
     } catch (e) {
       console.warn("Failed to fetch VAPI call for structured outputs:", e)
     }
@@ -121,10 +131,13 @@ async function handleCallEnded(message: {
       : fallbackMemoriesExtracted(call),
   }
 
+  console.log("[VAPI Webhook] Updates to call_log:", JSON.stringify(updates, null, 2))
+
   await updateCallLog(vapiCallId, updates as Parameters<typeof updateCallLog>[1])
 
   // 3) If structured output says there was a story, create a memory row
   if (structured?.has_story && structured?.chapter_content && elderId) {
+    console.log("[VAPI Webhook] Creating memory:", { chapter_title: structured.chapter_title, has_content: !!structured.chapter_content })
     await createMemory({
       elder_id: elderId,
       call_id: vapiCallId,

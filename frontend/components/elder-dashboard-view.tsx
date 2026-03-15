@@ -24,6 +24,7 @@ import {
   Heart,
   Clock,
   PhoneCall,
+  List,
 } from "lucide-react"
 import { useVapi } from "@/components/vapi-call-provider"
 import type { Elder, CallLog, Memory } from "@/app/types"
@@ -399,6 +400,46 @@ export function ElderDashboardView({ elder, calls, memories, onBack, onRefresh }
               )}
             </div>
 
+            {/* Story of the week - from latest memory (dashboard only) */}
+            {(latestMemory || (memories.length === 0 && !hasRealData)) && (
+              <div className="paper-card p-6 bg-secondary/50">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-xs font-semibold tracking-wider text-primary uppercase font-mono">
+                    Story of the week
+                  </span>
+                  {latestMemory && (
+                    <span className="text-xs text-muted-foreground">
+                      · {formatStoryDate(latestMemory.created_at)}
+                    </span>
+                  )}
+                </div>
+                {latestMemory ? (
+                  <>
+                    <h3 className="text-lg font-semibold text-foreground font-heading mb-3">
+                      {latestMemory.category || "A memory"}
+                    </h3>
+                    <blockquote className="text-foreground italic mb-4 leading-relaxed border-l-2 border-primary/30 pl-4">
+                      &ldquo;{latestMemory.memory_text}&rdquo;
+                    </blockquote>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" className="border-border">
+                        <Share2 className="w-4 h-4 mr-2" />
+                        Share with family
+                      </Button>
+                      <Button variant="outline" size="sm" className="border-border">
+                        <FileText className="w-4 h-4 mr-2" />
+                        Export PDF
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-sm text-muted-foreground italic">
+                    Stories captured from calls will appear here.
+                  </p>
+                )}
+              </div>
+            )}
+
             {/* Health Schedule - from elder.medications with fallback */}
             <div className="paper-card p-6">
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider font-mono mb-4">
@@ -460,11 +501,11 @@ export function ElderDashboardView({ elder, calls, memories, onBack, onRefresh }
                   </button>
                 </div>
               </div>
-            <div className="space-y-3">
+            <div className="space-y-3 max-h-[320px] overflow-y-auto">
               {displayCallsList.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No calls yet</p>
               ) : (
-                displayCallsList.slice(0, 5).map((call) => {
+                displayCallsList.map((call) => {
                   const isReal = "started_at" in call && "mood_score" in call
                   const mood = isReal ? moodFromScore((call as CallLog).mood_score) : (call as typeof FALLBACK.recentCalls[0]).mood
                   const moodEmoji = { happy: "😊", neutral: "😐", sad: "😟" }
@@ -506,6 +547,27 @@ export function ElderDashboardView({ elder, calls, memories, onBack, onRefresh }
                         />
                       </div>
                       <span className="text-xs text-muted-foreground w-8 text-right">{topic.percentage}%</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* All memories - full list from DB */}
+            <div className="paper-card p-6">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4 font-mono flex items-center gap-2">
+                <List className="w-4 h-4" />
+                All memories
+              </h3>
+              {memories.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No memories yet. They’ll appear after calls where a story is shared.</p>
+              ) : (
+                <div className="space-y-3 max-h-[280px] overflow-y-auto">
+                  {memories.map((m) => (
+                    <div key={m.id} className="rounded-xl border border-border bg-background p-3">
+                      <p className="text-sm font-medium text-foreground font-heading">{m.category || "Memory"}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{formatStoryDate(m.created_at)}</p>
+                      <p className="text-sm text-muted-foreground mt-2 line-clamp-3">&ldquo;{m.memory_text}&rdquo;</p>
                     </div>
                   ))}
                 </div>
