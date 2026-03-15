@@ -1,6 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -11,10 +12,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import {
-  AlertCircle,
   Share2,
   FileText,
-  Plus,
   Phone,
   ArrowLeft,
   Loader2,
@@ -24,7 +23,8 @@ import {
   Heart,
   Clock,
   PhoneCall,
-  List,
+  ChevronRight,
+  Sparkles,
 } from "lucide-react"
 import { useVapi } from "@/components/vapi-call-provider"
 import type { Elder, CallLog, Memory } from "@/app/types"
@@ -33,8 +33,8 @@ import type { Elder, CallLog, Memory } from "@/app/types"
 const FALLBACK = {
   callsThisMonth: 4,
   storiesCaptured: 3,
-  happyMoodDays: 5,
-  healthOnTrack: true,
+  happyMoodDays: "86%",
+  healthOnTrack: "Yes",
   recentCalls: [
     { id: "fallback-1", date: "Today", time: "10:14 AM", duration: "12 min", mood: "happy" as const, summary: "Quick check-in. Dorothy was in good spirits and mentioned her garden." },
     { id: "fallback-2", date: "Yesterday", time: "9:30 AM", duration: "18 min", mood: "happy" as const, summary: "Talked about family and remembered a story from the old days." },
@@ -47,6 +47,11 @@ const FALLBACK = {
     { name: "Gardening", percentage: 45 },
     { name: "Health", percentage: 28 },
   ] as const,
+  storyOfTheWeek: {
+    category: "Life's Simple Pleasures",
+    text: "Mentioned enjoying time in the garden and checking on flowers. The tulips are starting to bloom early this year — just like they did when they were a child. A gentle reminder that the best stories are often the quiet ones.",
+    date: "This week",
+  },
 }
 
 interface ElderDashboardViewProps {
@@ -235,8 +240,10 @@ export function ElderDashboardView({ elder, calls, memories, onBack, onRefresh }
   const hasRealData = calls.length > 0 || memories.length > 0
   const displayCallsThisMonth = callsThisMonth > 0 ? callsThisMonth : (hasRealData ? 0 : FALLBACK.callsThisMonth)
   const displayStories = storiesCaptured > 0 ? storiesCaptured : (hasRealData ? 0 : FALLBACK.storiesCaptured)
-  const displayHappyMood = happyMoodCalls.length > 0 ? happyMoodCalls.length : (hasRealData ? 0 : FALLBACK.happyMoodDays)
-  const displayHealthOnTrack = healthOnTrackYes ? "Yes" : (hasRealData ? "—" : (FALLBACK.healthOnTrack ? "Yes" : "—"))
+  const displayHappyMood = calls.length > 0 && happyMoodCalls.length > 0
+    ? `${Math.round((happyMoodCalls.length / calls.length) * 100)}%`
+    : (hasRealData ? "—" : FALLBACK.happyMoodDays)
+  const displayHealthOnTrack = healthOnTrackYes ? "Yes" : (hasRealData ? "—" : FALLBACK.healthOnTrack)
   const displayCallsList = displayCalls.length > 0 ? displayCalls : (hasRealData ? [] : FALLBACK.recentCalls)
   const displayMeds = meds.length > 0 ? meds : (hasRealData ? [] : [...FALLBACK.healthSchedule])
   const displayTopics = topicsThisMonth.length > 0 ? topicsThisMonth : (hasRealData ? [] : [...FALLBACK.topics])
@@ -400,18 +407,17 @@ export function ElderDashboardView({ elder, calls, memories, onBack, onRefresh }
               )}
             </div>
 
-            {/* Story of the week - from latest memory (dashboard only) */}
-            {(latestMemory || (memories.length === 0 && !hasRealData)) && (
-              <div className="paper-card p-6 bg-secondary/50">
+            {/* Story of the week - from latest memory or fallback when no real data */}
+            {(latestMemory || !hasRealData) && (
+              <div className="paper-card p-6 bg-gradient-to-br from-primary/5 via-secondary/30 to-background border border-primary/10">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="text-xs font-semibold tracking-wider text-primary uppercase font-mono">
+                  <span className="text-xs font-semibold tracking-wider text-primary uppercase font-mono flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5" />
                     Story of the week
                   </span>
-                  {latestMemory && (
-                    <span className="text-xs text-muted-foreground">
-                      · {formatStoryDate(latestMemory.created_at)}
-                    </span>
-                  )}
+                  <span className="text-xs text-muted-foreground">
+                    · {latestMemory ? formatStoryDate(latestMemory.created_at) : FALLBACK.storyOfTheWeek.date}
+                  </span>
                 </div>
                 {latestMemory ? (
                   <>
@@ -433,9 +439,17 @@ export function ElderDashboardView({ elder, calls, memories, onBack, onRefresh }
                     </div>
                   </>
                 ) : (
-                  <p className="text-sm text-muted-foreground italic">
-                    Stories captured from calls will appear here.
-                  </p>
+                  <>
+                    <h3 className="text-lg font-semibold text-foreground font-heading mb-3">
+                      {FALLBACK.storyOfTheWeek.category}
+                    </h3>
+                    <blockquote className="text-foreground italic mb-4 leading-relaxed border-l-2 border-primary/30 pl-4">
+                      &ldquo;{FALLBACK.storyOfTheWeek.text}&rdquo;
+                    </blockquote>
+                    <p className="text-sm text-muted-foreground">
+                      Stories captured from calls will appear here. Start a call to capture memories.
+                    </p>
+                  </>
                 )}
               </div>
             )}
@@ -553,26 +567,55 @@ export function ElderDashboardView({ elder, calls, memories, onBack, onRefresh }
               )}
             </div>
 
-            {/* All memories - full list from DB */}
-            <div className="paper-card p-6">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4 font-mono flex items-center gap-2">
-                <List className="w-4 h-4" />
-                All memories
-              </h3>
-              {memories.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No memories yet. They’ll appear after calls where a story is shared.</p>
-              ) : (
-                <div className="space-y-3 max-h-[280px] overflow-y-auto">
-                  {memories.map((m) => (
-                    <div key={m.id} className="rounded-xl border border-border bg-background p-3">
-                      <p className="text-sm font-medium text-foreground font-heading">{m.category || "Memory"}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{formatStoryDate(m.created_at)}</p>
-                      <p className="text-sm text-muted-foreground mt-2 line-clamp-3">&ldquo;{m.memory_text}&rdquo;</p>
+            {/* Memories – beautiful card linking to storybook */}
+            <Link href={`/storybook/${elder.id}`} className="block">
+              <div className="group relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 via-secondary/20 to-background p-6 transition-all duration-300 hover:shadow-lg hover:border-primary/30 hover:bg-primary/15">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                        <BookOpen className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-foreground font-heading uppercase tracking-wider">
+                          Memories
+                        </h3>
+                        <p className="text-xs text-muted-foreground">
+                          {memories.length === 0
+                            ? "Stories will appear after calls"
+                            : `${memories.length} ${memories.length === 1 ? "memory" : "memories"} captured`}
+                        </p>
+                      </div>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+                  </div>
+              {memories.length > 0 ? (
+                <div className="space-y-2 max-h-[140px] overflow-y-auto">
+                  {memories.slice(0, 2).map((m) => (
+                    <div key={m.id} className="rounded-xl bg-background/80 border border-border/50 p-3">
+                      <p className="text-xs font-medium text-foreground font-heading">{m.category || "Memory"}</p>
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">&ldquo;{m.memory_text}&rdquo;</p>
                     </div>
                   ))}
+                  {memories.length > 2 && (
+                    <p className="text-xs text-muted-foreground pt-1">
+                      +{memories.length - 2} more in storybook
+                    </p>
+                  )}
                 </div>
+              ) : (
+                <p className="text-sm text-muted-foreground italic">
+                  Every call can become a chapter. Open the storybook to explore and add memories.
+                </p>
               )}
-            </div>
+                  <div className="mt-4 flex items-center gap-2 text-primary text-sm font-medium">
+                    <span>View storybook</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </div>
+                </div>
+              </div>
+            </Link>
           </div>
         </div>
 

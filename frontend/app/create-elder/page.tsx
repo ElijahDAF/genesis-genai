@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { RegistrationFlow } from "@/components/registration-flow"
-import type { ElderData, CaregiverData } from "@/app/types"
+import type { ElderFormData, CaregiverData } from "@/app/types"
 
 function calculateAgeFromDOB(dob: string): number {
   if (!dob) return 0
@@ -17,7 +17,7 @@ function calculateAgeFromDOB(dob: string): number {
 export default function CreateElderPage() {
   const router = useRouter()
 
-  const handleComplete = async (elder: ElderData, caregiver: CaregiverData) => {
+  const handleComplete = async (elder: ElderFormData, caregiver: CaregiverData) => {
     try {
       const payload = {
         name: `${elder.firstName} ${elder.lastName}`.trim(),

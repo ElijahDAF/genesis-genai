@@ -89,3 +89,13 @@ export async function getMemoriesByElderId(elderId: string): Promise<Memory[]> {
     if (error) throw error
     return data ?? []
 }
+
+export async function getRecentCallLogs(limit: number = 5): Promise<CallLog[]> {
+    const { data, error } = await supabaseAdmin
+        .from("call_logs")
+        .select("*")
+        .order("started_at", { ascending: false })
+        .limit(limit)
+    if (error) throw error
+    return data ?? []
+}

@@ -61,9 +61,23 @@ export interface MedicationReminder {
   name: string
   time: string
   days: string[]
+  dosage?: string
 }
 
 export interface ElderData {
+  id: string
+  firstName: string
+  lastName: string
+  phone: string
+  dateOfBirth: string
+  location: string
+  relationship: string
+  thingsTheyLove: string
+  medicationSchedule: MedicationReminder[]
+}
+
+/** Form data for creating a new elder (before saving to DB) */
+export interface ElderFormData {
   firstName: string
   lastName: string
   phone: string

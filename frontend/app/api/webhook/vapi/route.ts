@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { updateCallLog, createMemory, getCallLogByVapiCallId } from "@/app/lib/supabase"
+import { updateCallLog, createMemory, getCallLogByVapiCallId, createCallLog } from "@/app/lib/supabase"
 import { getCallDetails } from "@/app/lib/vapi"
 
 // TODO: add real signature verification if you configure a webhook secret
@@ -27,33 +27,36 @@ export async function POST(req: NextRequest) {
     const { message } = payload
 
     // Log full payload for debugging (all data coming back from VAPI)
+    console.log("[VAPI Webhook] ===== WEBHOOK RECEIVED =====")
+    console.log("[VAPI Webhook] Message type:", message?.type)
+    console.log("[VAPI Webhook] Call ID:", message?.call?.id)
     console.log("[VAPI Webhook] Full payload:", JSON.stringify(payload, null, 2))
-    if (message?.call) {
-      console.log("[VAPI Webhook] call object:", JSON.stringify(message.call, null, 2))
-    }
-    if (message?.call?.artifact) {
-      console.log("[VAPI Webhook] call.artifact:", JSON.stringify(message.call.artifact, null, 2))
-    }
+    
     if (!message) {
+      console.log("[VAPI Webhook] No message in payload, returning")
       return NextResponse.json({ received: true })
     }
 
     switch (message.type) {
       case "call-ended":
       case "end-of-call-report":
+        console.log("[VAPI Webhook] Handling call-ended/end-of-call-report")
         await handleCallEnded(message)
         break
       case "call-started":
+        console.log("[VAPI Webhook] Handling call-started")
         await handleCallStarted(message)
         break
       case "transcript":
+        console.log("[VAPI Webhook] Transcript received (not storing)")
         break
       default:
-        console.log("Unhandled webhook type:", message.type)
+        console.log("[VAPI Webhook] Unhandled webhook type:", message.type)
     }
 
     return NextResponse.json({ received: true })
   } catch (error: unknown) {
+    console.error("[VAPI Webhook] ===== ERROR =====")
     console.error("Webhook processing error:", error)
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Webhook error" },
@@ -62,9 +65,18 @@ export async function POST(req: NextRequest) {
   }
 }
 
-async function handleCallStarted(message: { call?: { id?: string } }) {
+async function handleCallStarted(message: { call?: { id?: string; customer?: { number?: string; name?: string } } }) {
   const callId = message.call?.id
-  if (callId) console.log("Call started:", callId)
+  console.log("[VAPI Webhook] Call started:", callId)
+  
+  // Check if we already have this call registered
+  if (callId) {
+    const existing = await getCallLogByVapiCallId(callId)
+    if (!existing) {
+      console.log("[VAPI Webhook] Call not registered yet, will wait for register call or create placeholder")
+      // Optionally create a placeholder here if you want to track all calls
+    }
+  }
 }
 
 async function handleCallEnded(message: {
@@ -75,24 +87,47 @@ async function handleCallEnded(message: {
     summary?: string
     artifact?: { structuredOutputs?: Record<string, { name?: string; result?: unknown }> }
     analysis?: { moodScore?: number; memories?: unknown[]; summary?: string }
+    customer?: { number?: string; name?: string }
   }
 }) {
   const call = message.call
   if (!call?.id) {
-    console.warn("handleCallEnded: missing call.id")
+    console.warn("[VAPI Webhook] handleCallEnded: missing call.id")
     return
   }
 
   const vapiCallId = call.id
+  console.log("[VAPI Webhook] Processing call end:", vapiCallId)
 
   // We only update if we have a call_log (created when call was started via our API or after frontend registers)
-  const existingLog = await getCallLogByVapiCallId(vapiCallId)
+  let existingLog = await getCallLogByVapiCallId(vapiCallId)
+  
   if (!existingLog) {
-    console.log("No call_log for vapi_call_id:", vapiCallId, "- skipping (register in-browser calls via POST /api/call/register)")
-    return
+    console.log("[VAPI Webhook] No call_log for vapi_call_id:", vapiCallId)
+    console.log("[VAPI Webhook] Creating placeholder call_log for unregistered call")
+    
+    // Create a placeholder so we don't lose the data
+    // The elder_id will be null until we can match it somehow
+    try {
+      await createCallLog({
+        elder_id: null as any, // We'll need to handle this case
+        vapi_call_id: vapiCallId,
+        started_at: new Date(Date.now() - (call.durationSeconds || 0) * 1000).toISOString(),
+      })
+      existingLog = await getCallLogByVapiCallId(vapiCallId)
+    } catch (e) {
+      console.error("[VAPI Webhook] Failed to create placeholder call_log:", e)
+      return
+    }
   }
 
+  if (!existingLog) {
+    console.error("[VAPI Webhook] Could not create or find call_log, skipping")
+    return
+  }
+  
   const elderId = existingLog.elder_id
+  console.log("[VAPI Webhook] Elder ID:", elderId)
 
   // 1) Try structured outputs from webhook payload (artifact may be present on end-of-call-report)
   let structured: EverlyStructuredResult | null = extractStructuredFromPayload(call)
@@ -100,6 +135,7 @@ async function handleCallEnded(message: {
 
   // 2) If not in payload, fetch call from VAPI API (structured outputs are ready a few seconds after call ends)
   if (!structured) {
+    console.log("[VAPI Webhook] No structured data in payload, waiting 5s then fetching from API...")
     await new Promise((r) => setTimeout(r, 5000))
     try {
       const fullCall = await getCallDetails(vapiCallId)
@@ -107,7 +143,7 @@ async function handleCallEnded(message: {
       structured = extractStructuredFromPayload(fullCall)
       console.log("[VAPI Webhook] Structured from API fetch:", structured)
     } catch (e) {
-      console.warn("Failed to fetch VAPI call for structured outputs:", e)
+      console.warn("[VAPI Webhook] Failed to fetch VAPI call for structured outputs:", e)
     }
   }
 
@@ -148,7 +184,7 @@ async function handleCallEnded(message: {
     })
   }
 
-  console.log("Call ended and processed:", vapiCallId)
+  console.log("[VAPI Webhook] Call ended and processed successfully:", vapiCallId)
 }
 
 /** Read Everly structured result from VAPI call.artifact.structuredOutputs (any output that has mood / meds_taken) */
@@ -193,4 +229,3 @@ function buildConcernFlags(call: any, mood?: string): string[] {
 function fallbackMemoriesExtracted(call: any): any[] {
   return call?.analysis?.memories ?? []
 }
-
