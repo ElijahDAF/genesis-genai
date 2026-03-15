@@ -124,9 +124,13 @@ Open [http://localhost:3000](http://localhost:3000). You'll see the elders list;
 6. **Copy the forwarding URL** (looks like `https://abc123.ngrok.io`)
 
 7. **Set up VAPI Dashboard:**
-   - Go to [VAPI Dashboard](https://dashboard.vapi.ai) → Your Assistant → Settings
+   - Go to [VAPI Dashboard](https://dashboard.vapi.ai)
+   - Click on your **Organization name** (top left, next to the VAPI logo)
+   - Select **Settings** from the dropdown
    - Under **Webhook URL**, enter: `https://YOUR_NGROK_URL/api/webhook/vapi`
    - Save changes
+   
+   > **Note:** The webhook is configured at the **organization level**, not per assistant. This means all calls from any assistant in your organization will send webhooks to this URL.
 
 8. **Test it:**
    - Make a call from your dashboard
@@ -227,6 +231,88 @@ Configure structured outputs in VAPI Dashboard to capture:
 2. Check the assistant is actually having conversations (not just hanging up immediately)
 3. Look at the full payload in logs to see what's being sent
 4. Verify your Supabase keys have write permissions
+
+---
+
+## Deploy to Vercel (Share with Friends!)
+
+Your friends can't access `localhost:3001` on your computer. To share Everly with others, you need to deploy it to the internet.
+
+### Option 1: Deploy to Vercel (Recommended - 5 minutes)
+
+1. **Install Vercel CLI:**
+   ```bash
+   npm i -g vercel
+   ```
+
+2. **Login to Vercel:**
+   ```bash
+   vercel login
+   ```
+
+3. **Deploy from the frontend folder:**
+   ```bash
+   cd frontend
+   vercel
+   ```
+
+4. **Follow the prompts:**
+   - Set up and deploy? **Yes**
+   - Link to existing project? **No** (first time)
+   - What's your project name? **everly** (or any name)
+
+5. **Add environment variables in Vercel Dashboard:**
+   - Go to [vercel.com/dashboard](https://vercel.com/dashboard)
+   - Find your project → Settings → Environment Variables
+   - Add all variables from your `.env.local`:
+     - `NEXT_PUBLIC_SUPABASE_URL`
+     - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+     - `SUPABASE_SERVICE_ROLE_KEY`
+     - `NEXT_PUBLIC_VAPI_PUBLIC_KEY`
+     - `NEXT_PUBLIC_VAPI_ASSISTANT_ID`
+     - `VAPI_API_KEY`
+     - `VAPI_PHONE_NUMBER_ID`
+     - `VAPI_ASSISTANT_ID`
+
+6. **Redeploy:**
+   ```bash
+   vercel --prod
+   ```
+
+7. **Update VAPI Webhook URL:**
+   - In VAPI Dashboard → Organization Settings
+   - Change webhook URL to: `https://your-app.vercel.app/api/webhook/vapi`
+
+8. **Share the URL!** Your friends can now visit `https://your-app.vercel.app`
+
+### Option 2: Deploy to Netlify
+
+1. **Install Netlify CLI:**
+   ```bash
+   npm i -g netlify-cli
+   ```
+
+2. **Deploy:**
+   ```bash
+   cd frontend
+   netlify deploy --prod
+   ```
+
+3. **Add environment variables** in Netlify Dashboard
+
+### Troubleshooting Deployment
+
+**"Build failed" errors:**
+- Make sure all environment variables are set in Vercel/Netlify dashboard
+- Check that your Supabase tables are created
+
+**"Webhook not working" after deploy:**
+- Update the webhook URL in VAPI Dashboard to your production URL
+- Don't use ngrok anymore - use your actual domain
+
+**Images not loading:**
+- Images from Unsplash should work automatically
+- If using other image sources, add them to `next.config.mjs` in the `images.remotePatterns` array
 
 ---
 

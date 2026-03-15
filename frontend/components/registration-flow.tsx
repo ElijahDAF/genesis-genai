@@ -12,10 +12,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import type { ElderData, CaregiverData, MedicationReminder } from "@/app/types"
+import type { ElderFormData, CaregiverData, MedicationReminder } from "@/app/types"
 
 interface RegistrationFlowProps {
-  onComplete: (elder: ElderData, caregiver: CaregiverData) => void
+  onComplete: (elder: ElderFormData, caregiver: CaregiverData) => void
   onBack?: () => void
 }
 

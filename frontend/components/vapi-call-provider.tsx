@@ -97,19 +97,19 @@ export function VapiCallProvider({ children }: { children: ReactNode }) {
         console.log("[VAPI] transcript", msg)
     })
 
-    vapi.on("call-start", onStart)
+    vapi.on("call-start", onStart as () => void)
     vapi.on("call-end", onEnd)
-    vapi.on("call-start-failed", (e: { error?: string }) => {
+    vapi.on("call-start-failed", ((e: { error?: string }) => {
       console.error("[VAPI] call-start-failed", e)
       setError(e?.error ?? "Failed to start call")
       setIsConnecting(false)
-    })
-    vapi.on("error", onError)
+    }) as () => void)
+    vapi.on("error", onError as () => void)
 
     return () => {
-      vapi.removeListener("call-start", onStart)
-      vapi.removeListener("call-end", onEnd)
-      vapi.removeListener("error", onError)
+      vapi.removeListener("call-start", onStart as () => void)
+      vapi.removeListener("call-end", onEnd as () => void)
+      vapi.removeListener("error", onError as () => void)
     }
   }, [])
 

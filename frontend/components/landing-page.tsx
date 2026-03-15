@@ -2,8 +2,9 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Phone, ArrowRight, Calendar, Heart, Smile, BookOpen, Shield, MessageCircle, Sparkles, Clock, Users } from "lucide-react"
+import { Phone, ArrowRight, Calendar, Heart, Smile, BookOpen, Shield, MessageCircle, Sparkles, Clock, Users, Play } from "lucide-react"
 import { motion } from "framer-motion"
+import Image from "next/image"
 
 const fadeInUp = {
   initial: { opacity: 0, y: 30 },
@@ -19,122 +20,147 @@ const staggerContainer = {
   }
 }
 
+// Emotional image URLs from Unsplash
+const images = {
+    // Hero: warm, human, direct, believable
+    hero: "https://images.pexels.com/photos/7477721/pexels-photo-7477721.jpeg?auto=compress&cs=tinysrgb&w=1400",
+
+    // Problem / connection card
+    connection: "https://images.pexels.com/photos/7232037/pexels-photo-7232037.jpeg?auto=compress&cs=tinysrgb&w=1200",
+
+    // Memory keeper
+    memories: "https://images.pexels.com/photos/8307521/pexels-photo-8307521.jpeg?auto=compress&cs=tinysrgb&w=1200",
+
+    // Family / generational warmth
+    family: "https://images.pexels.com/photos/7117617/pexels-photo-7117617.jpeg?auto=compress&cs=tinysrgb&w=1200",
+
+    // Story/testimonial section
+    phone: "https://images.pexels.com/photos/7117618/pexels-photo-7117618.jpeg?auto=compress&cs=tinysrgb&w=1200",
+
+    // Calm lifestyle / presence
+    elderly: "https://images.pexels.com/photos/7394789/pexels-photo-7394789.jpeg?auto=compress&cs=tinysrgb&w=1200",
+}
+
 export function LandingPage() {
   return (
     <main className="min-h-screen w-full bg-background text-foreground overflow-hidden">
       {/* Hero Section */}
-      <section className="relative">
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
-        
-        <div className="relative mx-auto max-w-6xl px-4 py-16 md:py-24">
-          <motion.div 
-            className="grid gap-8 md:grid-cols-[1fr,320px] md:items-center"
-            initial="initial"
-            animate="animate"
-            variants={staggerContainer}
-          >
-            <motion.div className="paper-card p-8 md:p-12 relative overflow-hidden" variants={fadeInUp}>
-              {/* Decorative element */}
-              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-              
-              <span className="sage-pill text-xs font-mono mb-4 inline-block relative">
-                A GENTLE COMPANION FOR THOSE WHO CARED FOR US
-              </span>
-              <h1 className="text-3xl font-bold tracking-tight text-foreground font-heading md:text-4xl lg:text-5xl leading-tight relative">
-                They spent a lifetime
-                <span className="block text-primary">loving us.</span>
-                <span className="block mt-2">Now it&apos;s our turn.</span>
-              </h1>
-              <p className="mt-6 text-muted-foreground text-lg leading-relaxed max-w-xl">
-                Everly is the daily check-in you wish you could make every morning. 
-                A warm voice that asks how they slept, if they took their medicine, 
-                and what memories drifted through their dreams.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Button asChild size="lg" className="rounded-[28px] bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5">
-                  <Link href="/dashboard">
-                    <Phone className="mr-2 h-5 w-5" />
-                    Start Caring
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" size="lg" className="rounded-[28px] border-border hover:bg-secondary transition-all" >
-                  <Link href="/#how-it-works">
-                    See how it works
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              </div>
-              
-              {/* Trust indicators */}
-              <div className="mt-10 pt-8 border-t border-border/50 grid grid-cols-3 gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-primary font-heading">5 min</div>
-                  <div className="text-xs text-muted-foreground font-mono mt-1">Daily check-ins</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-primary font-heading">24/7</div>
-                  <div className="text-xs text-muted-foreground font-mono mt-1">Always there</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-primary font-heading">100%</div>
-                  <div className="text-xs text-muted-foreground font-mono mt-1">Family peace</div>
-                </div>
-              </div>
-            </motion.div>
-            
-            <motion.div 
-              className="relative"
-              variants={fadeInUp}
-            >
-              <div className="paper-card overflow-hidden p-0 aspect-[4/5] max-h-[520px] bg-gradient-to-br from-secondary via-secondary/50 to-background flex items-center justify-center relative">
-                {/* Animated background */}
-                <div className="absolute inset-0 bg-gradient-to-t from-primary/10 via-transparent to-primary/5" />
-                <motion.div 
-                  className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"
-                  animate={{ 
-                    opacity: [0.5, 0.8, 0.5],
-                  }}
-                  transition={{ 
-                    duration: 4,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                />
-                
-                <div className="relative flex h-full w-full flex-col items-center justify-center text-center p-8">
-                  <motion.span 
-                    className="text-7xl mb-4"
-                    animate={{ 
-                      scale: [1, 1.1, 1],
-                    }}
-                    transition={{ 
-                      duration: 3,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  >
-                    🧚
-                  </motion.span>
-                  <span className="text-sm font-mono text-muted-foreground">Everly is listening</span>
-                  
-                  {/* Floating quote */}
-                  <motion.div 
-                    className="absolute bottom-8 left-4 right-4 paper-card p-4 text-left"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.8, duration: 0.6 }}
-                  >
-                    <p className="text-xs text-muted-foreground italic">
-                      &ldquo;Tell me about the time you met Grandma...&rdquo;
-                    </p>
-                  </motion.div>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
+        {/* Hero Section */}
+        <section className="relative">
+            {/* Background gradient */}
+            <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
+
+            <div className="relative mx-auto max-w-6xl px-4 py-16 md:py-24">
+                <motion.div
+                    className="grid gap-8 md:grid-cols-[minmax(0,1fr)_380px] md:items-center"
+                    initial="initial"
+                    animate="animate"
+                    variants={staggerContainer}
+                >
+                    {/* CHANGED: Left content card stays in column 1 */}
+                    <motion.div
+                        className="paper-card p-8 md:p-12 relative overflow-hidden"
+                        variants={fadeInUp}
+                    >
+                        {/* Decorative element */}
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+
+                        <span className="sage-pill text-xs font-mono mb-4 inline-block relative">
+          A GENTLE COMPANION FOR THOSE WHO CARED FOR US
+        </span>
+
+                        <h1 className="text-3xl font-bold tracking-tight text-foreground font-heading md:text-4xl lg:text-5xl leading-tight relative">
+                            They spent a lifetime
+                            <span className="block text-primary">loving us.</span>
+                            <span className="block mt-2">Now it&apos;s our turn.</span>
+                        </h1>
+
+                        <p className="mt-6 text-muted-foreground text-lg leading-relaxed max-w-xl">
+                            Everly is the daily check-in you wish you could make every morning.
+                            A warm voice that asks how they slept, if they took their medicine,
+                            and what memories drifted through their dreams.
+                        </p>
+
+                        <div className="mt-8 flex flex-wrap gap-3">
+                            <Button
+                                asChild
+                                size="lg"
+                                className="rounded-[28px] bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5"
+                            >
+                                <Link href="/dashboard">
+                                    <Phone className="mr-2 h-5 w-5" />
+                                    Start Caring
+                                </Link>
+                            </Button>
+
+                            <Button
+                                asChild
+                                variant="outline"
+                                size="lg"
+                                className="rounded-[28px] border-border hover:bg-secondary transition-all"
+                            >
+                                <Link href="/#how-it-works">
+                                    See how it works
+                                    <ArrowRight className="ml-2 h-4 w-4" />
+                                </Link>
+                            </Button>
+                        </div>
+
+                        {/* Trust indicators */}
+                        <div className="mt-10 pt-8 border-t border-border/50 grid grid-cols-3 gap-4">
+                            <div className="text-center">
+                                <div className="text-2xl font-bold text-primary font-heading">5 min</div>
+                                <div className="text-xs text-muted-foreground font-mono mt-1">Daily check-ins</div>
+                            </div>
+                            <div className="text-center">
+                                <div className="text-2xl font-bold text-primary font-heading">24/7</div>
+                                <div className="text-xs text-muted-foreground font-mono mt-1">Always there</div>
+                            </div>
+                            <div className="text-center">
+                                <div className="text-2xl font-bold text-primary font-heading">100%</div>
+                                <div className="text-xs text-muted-foreground font-mono mt-1">Family peace</div>
+                            </div>
+                        </div>
+                    </motion.div>
+
+                    {/* CHANGED: Image card moved OUTSIDE the left card so it becomes column 2 */}
+                    <motion.div className="relative" variants={fadeInUp}>
+                        <div className="paper-card overflow-hidden p-0 aspect-[4/5] max-h-[520px] relative">
+                            <Image
+                                src={images.hero}
+                                alt="Elderly person smiling while talking on phone - warm connection"
+                                fill
+                                className="object-cover"
+                                priority
+                            />
+
+                            {/* Overlay gradient */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+
+                            {/* Floating card */}
+                            <motion.div
+                                className="absolute bottom-6 left-4 right-4 paper-card p-4"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.8, duration: 0.6 }}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                                        <Play className="h-4 w-4 text-primary fill-primary" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium text-foreground">
+                                            &ldquo;Good morning! How did you sleep?&rdquo;
+                                        </p>
+                                        <p className="text-xs text-muted-foreground">Everly • Daily check-in</p>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </div>
+                    </motion.div>
+                </motion.div>
+            </div>
+        </section>
 
       {/* The Problem / Emotional Hook */}
       <section className="border-t border-border bg-secondary/20 py-16 md:py-24">
@@ -164,33 +190,47 @@ export function LandingPage() {
             {[
               {
                 icon: Clock,
+                image: images.connection,
                 title: "The morning check-in",
                 desc: "Did they sleep well? Are they in good spirits? A gentle start to their day."
               },
               {
                 icon: Heart,
+                image: images.elderly,
                 title: "The health reminder",
                 desc: "Soft prompts about medications, delivered with warmth, not urgency."
               },
               {
                 icon: BookOpen,
+                image: images.memories,
                 title: "The memory keeper",
                 desc: "Stories from their youth, preserved forever before they fade."
               }
             ].map((item, i) => (
               <motion.div 
                 key={item.title}
-                className="paper-card p-6 text-center group hover:shadow-lg transition-all duration-300"
+                className="paper-card overflow-hidden group"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
               >
-                <div className="mx-auto w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                  <item.icon className="h-6 w-6 text-primary" />
+                <div className="relative h-48 overflow-hidden">
+                    <Image
+                        src={item.image}
+                        alt={item.title}
+                        fill
+                        className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                    />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
                 </div>
-                <h3 className="font-semibold text-foreground font-heading">{item.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{item.desc}</p>
+                <div className="p-6">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                    <item.icon className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-foreground font-heading">{item.title}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">{item.desc}</p>
+                </div>
               </motion.div>
             ))}
           </div>
@@ -267,18 +307,38 @@ export function LandingPage() {
       {/* Features with emotion */}
       <section id="features" className="border-t border-border bg-secondary/20 py-16 md:py-24">
         <div className="mx-auto max-w-6xl px-4">
-          <motion.div 
-            className="text-center max-w-2xl mx-auto mb-16"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="text-2xl font-bold text-foreground font-heading md:text-3xl">
-              More than technology.
-              <span className="block text-primary mt-2">It&apos;s presence.</span>
-            </h2>
-          </motion.div>
+          <div className="grid lg:grid-cols-2 gap-12 items-center mb-16">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <h2 className="text-2xl font-bold text-foreground font-heading md:text-3xl lg:text-4xl">
+                More than technology.
+                <span className="block text-primary mt-2">It&apos;s presence.</span>
+              </h2>
+              <p className="mt-6 text-muted-foreground leading-relaxed">
+                Every conversation is an opportunity to preserve a piece of someone&apos;s history. 
+                We don&apos;t just check boxes — we check in.
+              </p>
+            </motion.div>
+            <motion.div
+              className="relative h-64 rounded-[28px] overflow-hidden"
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <Image
+                src={images.family}
+                alt="Family connection across generations"
+                fill
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent" />
+            </motion.div>
+          </div>
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[
@@ -295,7 +355,7 @@ export function LandingPage() {
               {
                 icon: BookOpen,
                 title: "Stories become legacies",
-                desc: "Every memory shared is captured and saved. The time Grandpa met Elvis. Mom's wedding day jitters. A lifetime, preserved."
+                desc: "Every memory shared is captured and saved. The stories your parents never wrote down. A lifetime, preserved."
               },
               {
                 icon: Calendar,
@@ -365,34 +425,27 @@ export function LandingPage() {
             </motion.div>
             
             <motion.div
+              className="relative"
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <h2 className="text-2xl font-bold text-foreground font-heading md:text-3xl">
-                We don&apos;t just check boxes.
-                <span className="block text-primary mt-2">We check in.</span>
-              </h2>
-              <p className="mt-6 text-muted-foreground leading-relaxed">
-                Every conversation is an opportunity to preserve a piece of someone&apos;s history. 
-                The stories your parents never wrote down. The memories your grandparents 
-                carry like precious cargo.
-              </p>
-              <p className="mt-4 text-muted-foreground leading-relaxed">
-                Before they fade. Before it&apos;s too late to ask. 
-                Everly is there, capturing the essence of who they are — 
-                so you&apos;ll always have it.
-              </p>
-              <div className="mt-8 flex gap-4">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Smile className="h-5 w-5 text-primary" />
-                  <span>Mood tracking</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Heart className="h-5 w-5 text-primary" />
-                  <span>Health insights</span>
-                </div>
+              <div className="relative h-80 rounded-[28px] overflow-hidden">
+                  <Image
+                      src={images.elderly}
+                      alt="Senior woman smiling while using her phone at home"
+                      fill
+                      className="object-cover object-center"
+                  />
+                <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent" />
+              </div>
+              <div className="absolute -bottom-6 -left-6 paper-card p-4 max-w-xs">
+                <p className="text-sm text-muted-foreground italic">
+                  &ldquo;I look forward to her calls. She asks about my garden, my recipes... 
+                  it feels like having a friend who really cares.&rdquo;
+                </p>
+                <p className="text-xs text-primary mt-2 font-medium">— Margaret, 78</p>
               </div>
             </motion.div>
           </div>
