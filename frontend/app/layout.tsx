@@ -1,13 +1,27 @@
 import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import { Montserrat, Inter, Roboto_Mono } from "next/font/google"
 import "./globals.css"
 import { VapiCallProvider } from "@/components/vapi-call-provider"
+import { Navigation } from "@/components/navigation"
 
-const _geist = Geist({ subsets: ["latin"] })
-const _geistMono = Geist_Mono({ subsets: ["latin"] })
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  variable: "--font-headings",
+  display: "swap",
+})
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-body",
+  display: "swap",
+})
+const robotoMono = Roboto_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+})
 
 export const metadata: Metadata = {
-  title: "EchoElders – A Living Memoir. A Safer Home.",
+  title: "Everly – A Living Memoir. A Safer Home.",
   description:
     "AI companion for seniors that captures life stories and keeps families connected through regular phone calls, mood insights, and beautiful weekly story excerpts.",
   icons: {
@@ -19,9 +33,15 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <body className="font-sans antialiased">
-        <VapiCallProvider>{children}</VapiCallProvider>
+    <html lang="en" className={`${montserrat.variable} ${inter.variable} ${robotoMono.variable}`}>
+      <body className="min-h-screen bg-background font-sans antialiased relative">
+        <div className="grain-overlay" aria-hidden />
+        <div className="relative z-10">
+          <VapiCallProvider>
+            <Navigation />
+            {children}
+          </VapiCallProvider>
+        </div>
       </body>
     </html>
   )

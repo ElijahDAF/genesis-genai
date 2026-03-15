@@ -1,4 +1,4 @@
-# EchoElders – UI design brief for Kimi 2.5
+# Everly – UI design brief for Kimi 2.5
 
 Use this document as the main input for Kimi 2.5. Ask Kimi to produce a **clear UI design system and screen-level specs** (and optionally mockups) that a developer can implement in the existing codebase. When Kimi’s output is ready, share it back so it can be integrated.
 
@@ -6,7 +6,7 @@ Use this document as the main input for Kimi 2.5. Ask Kimi to produce a **clear 
 
 ## 1. Product summary
 
-**EchoElders** is a caregiver dashboard web app. Caregivers:
+**Everly** is a caregiver dashboard web app. Caregivers:
 
 - See a **list of elders** they care for (name, age, phone).
 - **Start an AI voice call** (in-browser or outbound to a phone number).
@@ -33,7 +33,7 @@ Use this document as the main input for Kimi 2.5. Ask Kimi to produce a **clear 
 
 - **Path in app:** First screen when opening the app (after any future auth).
 - **Content:**
-  - **Header:** Logo/brand (EchoElders), short tagline, two actions: **“Call a number”** (outbound phone call) and **“Add elder”** (opens registration).
+  - **Header:** Logo/brand (Everly), short tagline, two actions: **“Call a number”** (outbound phone call) and **“Add elder”** (opens registration).
   - **Error banner:** Shown when there’s an error (e.g. VAPI or outbound call failure). Dismissible or auto-clear.
   - **Section “Your elders”:** List of elder cards. Each card: avatar (initials), name, age, phone; actions: **“Start call”** (in-browser AI call), optionally **“View”** (go to dashboard). Empty state: illustration/icon, “No elders yet”, short copy, **“Add elder”** CTA.
   - **When on an in-browser call:** Floating **“End call”** button (e.g. bottom center).
@@ -57,7 +57,7 @@ Use this document as the main input for Kimi 2.5. Ask Kimi to produce a **clear 
   - **Alert card:** One prominent alert (e.g. mood dip), with date/time and short message.
   - **Story of the week:** Card with title, short quote, “Captured over N calls,” actions “Share with family” / “Export PDF.”
   - **Two-column area:** Left: **Recent calls** (list of call rows: date, time, duration, mood icon, summary). Right: **Topics this month** (horizontal bars), **Family members** (list + “Add family member”).
-  - **Footer:** Small branding (e.g. Everly/EchoElders), links (Help, Privacy, Contact).
+  - **Footer:** Small branding (e.g. Everly/Everly), links (Help, Privacy, Contact).
 - **Layout:** Max width ~1024px, centered; grid where needed (e.g. stats 4-col, then main + sidebar).
 
 ### 3.4 Outbound-call dialog
@@ -129,13 +129,13 @@ Copy-paste this:
 
 ---
 
-**Task:** You are redesigning the UI for **EchoElders**, a caregiver dashboard web app (list of elders, in-browser and outbound AI voice calls, add-elder registration, per-elder dashboard with stats, health schedule, alerts, stories, calls). The stack is **Next.js, React, Tailwind CSS v4, shadcn/ui, Lucide icons**. Tone: warm, trustworthy, calm; audience is people caring for aging loved ones.
+**Task:** You are redesigning the UI for **Everly**, a caregiver dashboard web app (list of elders, in-browser and outbound AI voice calls, add-elder registration, per-elder dashboard with stats, health schedule, alerts, stories, calls). The stack is **Next.js, React, Tailwind CSS v4, shadcn/ui, Lucide icons**. Tone: warm, trustworthy, calm; audience is people caring for aging loved ones.
 
 **Please:**
 
 1. **Define a design system:** colors (hex + usage), typography (font pairs, sizes, weights), spacing scale, radius, and component styles for buttons, cards, form inputs. Prefer expressions that map to **Tailwind** or **CSS variables** so a developer can implement them in `frontend/app/globals.css` and components.
 
-2. **Spec the main screens** using the structure in the attached “EchoElders – UI design brief” (elders list, registration flow, per-elder dashboard, outbound-call dialog). For each screen, give: layout (max width, padding, grid), section order, and for each section the type of component and spacing. Where possible, use **Tailwind class names** (e.g. `rounded-xl bg-white p-6`) so the spec is directly implementable.
+2. **Spec the main screens** using the structure in the attached “Everly – UI design brief” (elders list, registration flow, per-elder dashboard, outbound-call dialog). For each screen, give: layout (max width, padding, grid), section order, and for each section the type of component and spacing. Where possible, use **Tailwind class names** (e.g. `rounded-xl bg-white p-6`) so the spec is directly implementable.
 
 3. **Optional:** Add simple wireframes (ASCII or description) or a short “before/after” note so the developer sees intent (e.g. “hero section with softer CTA,” “denser stats row”).
 

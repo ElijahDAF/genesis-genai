@@ -14,7 +14,7 @@ import {
   ArrowLeft,
   Loader2
 } from "lucide-react"
-import type { ElderData, CaregiverData } from "@/app/page"
+import type { ElderData, CaregiverData } from "@/app/types"
 import { useVapi } from "@/components/vapi-call-provider"
 import type { ElderLike } from "@/components/vapi-call-provider"
 
@@ -127,7 +127,7 @@ export function Dashboard({ elder, onBackToList }: DashboardProps) {
   const medsOnTrack = elder.medicationSchedule?.length > 0 ? elder.medicationSchedule.length : 3
 
   return (
-    <div className="min-h-screen bg-(--cream)">
+    <div className="min-h-screen bg-background">
       <div className="max-w-5xl mx-auto px-4 py-6">
         {/* Header */}
         <header className="flex items-center justify-between mb-6">
@@ -137,22 +137,22 @@ export function Dashboard({ elder, onBackToList }: DashboardProps) {
                 <ArrowLeft className="w-5 h-5" />
               </Button>
             )}
-            <div className="w-14 h-14 rounded-full bg-(--amber-light) flex items-center justify-center text-xl font-semibold text-(--amber-dark)">
+            <div className="w-14 h-14 rounded-full bg-secondary flex items-center justify-center text-xl font-semibold text-foreground font-heading">
               {initials}
             </div>
             <div>
-              <h1 className="text-xl font-semibold text-foreground">{fullName}</h1>
+              <h1 className="text-xl font-semibold text-foreground font-heading">{fullName}</h1>
               <p className="text-sm text-muted-foreground">
                 {age} · {location}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded-full bg-(--sage-light) text-sm font-medium">
+            <span className="sage-pill">
               Active
             </span>
             <Button
-              className="bg-[var(--sage)] hover:bg-[var(--sage)]/90"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground"
               onClick={() => startCall(elderLike)}
               disabled={isConnecting || isActive}
             >
@@ -167,7 +167,7 @@ export function Dashboard({ elder, onBackToList }: DashboardProps) {
         </header>
 
         {error && (
-          <div className="mb-4 p-3 rounded-lg bg-(--coral-light) text-(--coral) text-sm">
+          <div className="mb-4 p-3 rounded-[28px] bg-secondary border border-border text-destructive text-sm">
             {error}
           </div>
         )}
@@ -181,7 +181,7 @@ export function Dashboard({ elder, onBackToList }: DashboardProps) {
         </div>
 
           {/* Health Schedule */}
-          <div className="bg-white rounded-xl border border-border p-6 mb-6">
+          <div className="paper-card p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
                 Health Schedule
@@ -193,11 +193,11 @@ export function Dashboard({ elder, onBackToList }: DashboardProps) {
                 {elder.medicationSchedule.map((med) => (
                   <div
                     key={med.id}
-                    className="flex items-center justify-between bg-(--cream) rounded-lg p-4"
+                    className="flex items-center justify-between bg-background rounded-[28px] p-4"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-(--amber-light) flex items-center justify-center">
-                        <Clock className="w-5 h-5 text-(--amber-dark)" />
+                      <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
+                        <Clock className="w-5 h-5 text-foreground" />
                       </div>
                       <div>
                         <p className="font-medium text-foreground">{med.name}</p>
@@ -206,15 +206,13 @@ export function Dashboard({ elder, onBackToList }: DashboardProps) {
                         </p>
                       </div>
                     </div>
-                    <span className="px-3 py-1 rounded-full bg-(--sage-light) text-xs font-medium">
-                      On track
-                    </span>
+                    <span className="sage-pill text-xs">On track</span>
                   </div>
                 ))}
               </div>
             ) : (
               <div className="text-center py-8">
-                <div className="w-12 h-12 rounded-full bg-(--cream) flex items-center justify-center mx-auto mb-3">
+                <div className="w-12 h-12 rounded-full bg-background flex items-center justify-center mx-auto mb-3">
                   <Clock className="w-6 h-6 text-muted-foreground" />
                 </div>
                 <p className="text-sm text-muted-foreground mb-2">No health reminders set up yet</p>
@@ -226,13 +224,13 @@ export function Dashboard({ elder, onBackToList }: DashboardProps) {
           </div>
     
         {/* Alert — styled as a call log row */}
-        <div className="bg-white rounded-xl border border-border p-4 mb-6 flex items-start gap-3">
-          <div className="w-8 h-8 rounded-full bg-(--coral-light) flex items-center justify-center shrink-0">
-            <AlertCircle className="w-4 h-4 text-(--coral)" />
+        <div className="paper-card p-4 mb-6 flex items-start gap-3">
+          <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center shrink-0">
+            <AlertCircle className="w-4 h-4 text-primary" />
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2 text-sm mb-1">
-              <span className="font-medium text-(--coral)">Alert</span>
+              <span className="font-medium text-primary">Alert</span>
               <span className="text-muted-foreground">Tue Mar 11</span>
               <span className="text-muted-foreground">·</span>
               <span className="text-muted-foreground">8:47 AM</span>
@@ -241,20 +239,20 @@ export function Dashboard({ elder, onBackToList }: DashboardProps) {
               {elder.firstName} mentioned feeling very alone and referenced Harold several times — our AI flagged a mood dip and notified you automatically.
             </p>
           </div>
-          <span className="shrink-0 px-3 py-1.5 rounded-lg bg-(--coral-light) text-text-xs font-medium">
+          <span className="shrink-0 sage-pill">
             Message sent
           </span>
         </div>
 
         {/* Story of the Week */}
-        <div className="bg-(--coral-light)/40 rounded-xl p-6 mb-6">
+        <div className="paper-card p-6 mb-6 bg-secondary/50">
           <div className="flex items-center gap-2 mb-3">
-            <span className="text-xs font-semibold tracking-wider text-(--coral) uppercase">
+            <span className="text-xs font-semibold tracking-wider text-primary uppercase font-mono">
               Story of the Week
             </span>
             <span className="text-xs text-muted-foreground">· March 10, 2026</span>
           </div>
-          <h2 className="text-xl font-semibold text-foreground mb-4">
+          <h2 className="text-xl font-semibold text-foreground font-heading mb-4">
             The Summer I Taught in Rural Ontario
           </h2>
           
@@ -265,11 +263,11 @@ export function Dashboard({ elder, onBackToList }: DashboardProps) {
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">Captured over 3 calls this week</span>
             <div className="flex gap-2">
-              <Button variant="outline" className="border-border bg-white hover:bg-(--cream)">
+              <Button variant="outline" className="border-border bg-card hover:bg-secondary">
                 <Share2 className="w-4 h-4 mr-2" />
                 Share with family
               </Button>
-              <Button variant="outline" className="border-border bg-white hover:bg-(--cream)">
+              <Button variant="outline" className="border-border bg-card hover:bg-secondary">
                 <FileText className="w-4 h-4 mr-2" />
                 Export PDF
               </Button>
@@ -280,17 +278,17 @@ export function Dashboard({ elder, onBackToList }: DashboardProps) {
         {/* Main Content Grid */}
         <div className="grid grid-cols-3 gap-6">
           {/* Recent Calls - Takes 2 columns */}
-          <div className="col-span-2 bg-white rounded-xl border border-border p-6">
+          <div className="col-span-2 paper-card p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider font-mono">
                 Recent Calls
               </h3>
-              <div className="flex bg-(--cream) rounded-lg p-1">
+              <div className="flex bg-background rounded-[28px] p-1">
                 <button
                   onClick={() => setCallFilter("week")}
-                  className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+                  className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
                     callFilter === "week"
-                      ? "bg-white text-foreground shadow-sm"
+                      ? "bg-card text-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
@@ -298,9 +296,9 @@ export function Dashboard({ elder, onBackToList }: DashboardProps) {
                 </button>
                 <button
                   onClick={() => setCallFilter("all")}
-                  className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+                  className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
                     callFilter === "all"
-                      ? "bg-white text-foreground shadow-sm"
+                      ? "bg-card text-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
@@ -319,8 +317,8 @@ export function Dashboard({ elder, onBackToList }: DashboardProps) {
           {/* Right Sidebar */}
           <div className="space-y-6">
             {/* Topics This Month */}
-            <div className="bg-white rounded-xl border border-border p-6">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">
+            <div className="paper-card p-6">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4 font-mono">
                 Topics This Month
               </h3>
               <div className="space-y-3">
@@ -331,15 +329,15 @@ export function Dashboard({ elder, onBackToList }: DashboardProps) {
             </div>
 
             {/* Family Members */}
-            <div className="bg-white rounded-xl border border-border p-6">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">
+            <div className="paper-card p-6">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4 font-mono">
                 Family Members
               </h3>
               <div className="space-y-3">
                 {mockFamilyMembers.map((member) => (
                   <FamilyMemberItem key={member.name} member={member} />
                 ))}
-                <button className="w-full py-2 border border-dashed border-border rounded-lg text-sm text-muted-foreground hover:text-foreground hover:border-(--amber) transition-colors flex items-center justify-center gap-2">
+                <button className="w-full py-2 border border-dashed border-border rounded-[28px] text-sm text-muted-foreground hover:text-foreground hover:border-primary transition-colors flex items-center justify-center gap-2">
                   <Plus className="w-4 h-4" />
                   Add family member
                 </button>
@@ -352,7 +350,7 @@ export function Dashboard({ elder, onBackToList }: DashboardProps) {
           <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
             <Button
               onClick={endCall}
-              className="bg-(--coral) hover:bg-(--coral)/90 shadow-lg"
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground shadow-lg rounded-[28px]"
             >
               End call
             </Button>
@@ -362,10 +360,10 @@ export function Dashboard({ elder, onBackToList }: DashboardProps) {
         {/* Footer */}
         <footer className="mt-8 pt-6 border-t border-border flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-(--amber) flex items-center justify-center">
-              <Heart className="w-4 h-4 text-white" />
+            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
+              <Heart className="w-4 h-4" />
             </div>
-            <span className="text-sm font-medium text-foreground">Everly</span>
+            <span className="text-sm font-medium text-foreground font-heading">Everly</span>
           </div>
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <a href="#" className="hover:text-foreground transition-colors">Help</a>
@@ -381,18 +379,18 @@ export function Dashboard({ elder, onBackToList }: DashboardProps) {
 // Sub-components
 function StatCard({ value, label }: { value: string; label: string }) {
   return (
-    <div className="bg-white rounded-xl border border-border p-4">
-      <div className="text-2xl font-bold text-foreground">{value}</div>
-      <div className="text-sm text-muted-foreground">{label}</div>
+    <div className="paper-card p-4">
+      <div className="text-2xl font-bold text-foreground font-heading">{value}</div>
+      <div className="text-sm text-muted-foreground font-mono">{label}</div>
     </div>
   )
 }
 
 function CallLogItem({ call }: { call: typeof mockCalls[0] }) {
   const moodEmoji = {
-    happy: { icon: "😊", bg: "bg-(--sage-light)" },
-    neutral: { icon: "😐", bg: "bg-(--amber-light)" },
-    sad: { icon: "😟", bg: "bg-[var(--coral-light)]" },
+    happy: { icon: "😊", bg: "bg-chart-1" },
+    neutral: { icon: "😐", bg: "bg-secondary" },
+    sad: { icon: "😟", bg: "bg-destructive/20" },
   }
 
   const mood = moodEmoji[call.mood]
@@ -415,13 +413,15 @@ function CallLogItem({ call }: { call: typeof mockCalls[0] }) {
   )
 }
 
+const topicBarColors = ["bg-chart-1", "bg-chart-2", "bg-chart-3", "bg-primary"]
 function TopicBar({ topic }: { topic: typeof mockTopics[0] }) {
+  const colorClass = topicBarColors[mockTopics.indexOf(topic) % topicBarColors.length]
   return (
     <div className="flex items-center gap-3">
-      <span className="text-sm text-foreground w-20">{topic.name}</span>
-      <div className="flex-1 h-2.5 bg-(--cream) rounded-full overflow-hidden">
+      <span className="text-sm text-foreground w-20 font-mono">{topic.name}</span>
+      <div className="flex-1 h-2.5 bg-background rounded-full overflow-hidden">
         <div
-          className={`h-full ${topic.color} rounded-full transition-all`}
+          className={`h-full ${colorClass} rounded-full transition-all`}
           style={{ width: `${topic.percentage}%` }}
         />
       </div>
@@ -434,12 +434,12 @@ function FamilyMemberItem({ member }: { member: typeof mockFamilyMembers[0] }) {
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <div className={`w-9 h-9 rounded-full ${member.color} flex items-center justify-center text-sm font-medium text-white`}>
+        <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-sm font-medium text-primary-foreground font-heading">
           {member.initial}
         </div>
         <span className="text-sm font-medium text-foreground">{member.name}</span>
       </div>
-      <span className="text-sm text-muted-foreground">{member.relationship}</span>
+      <span className="text-sm text-muted-foreground font-mono">{member.relationship}</span>
     </div>
   )
 }

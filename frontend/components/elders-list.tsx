@@ -34,22 +34,22 @@ export function EldersList({ onAddElder, onSelectElder }: EldersListProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[var(--cream)] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[var(--cream)]">
+    <div className="min-h-screen bg-background">
       <div className="max-w-2xl mx-auto px-4 py-8">
         <header className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[var(--amber)] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
               <span className="text-lg">🧚</span>
             </div>
             <div>
-              <h1 className="text-xl font-semibold text-foreground">EchoElders</h1>
+              <h1 className="text-xl font-semibold text-foreground">Everly</h1>
               <p className="text-sm text-muted-foreground">Care companion dashboard</p>
             </div>
           </div>
@@ -60,33 +60,33 @@ export function EldersList({ onAddElder, onSelectElder }: EldersListProps) {
               onSuccess={() => setOutboundError(null)}
               triggerLabel="Call a number"
             />
-            <Button onClick={onAddElder} className="bg-[var(--sage)] hover:bg-[var(--sage)]/90">
+            <Button onClick={onAddElder} className="bg-primary hover:bg-primary/90 text-primary-foreground">
               <Plus className="w-4 h-4 mr-2" />
-              Add elder
+              Add elderly
             </Button>
           </div>
         </header>
 
         {(error || outboundError) && (
-          <div className="mb-4 p-3 rounded-lg bg-[var(--coral-light)] text-[var(--coral)] text-sm">
+          <div className="mb-4 p-3 rounded-[28px] bg-secondary border border-border text-destructive text-sm">
             {error ?? outboundError}
           </div>
         )}
 
         <section>
           <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">
-            Your elders
+            Your elderly
           </h2>
           {elders.length === 0 ? (
-            <div className="bg-white rounded-xl border border-border p-8 text-center">
+            <div className="paper-card p-8 text-center">
               <User className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
-              <p className="text-foreground font-medium mb-1">No elders yet</p>
+              <p className="font-heading text-foreground font-medium mb-1">No elderly yet</p>
               <p className="text-sm text-muted-foreground mb-4">
                 Add someone you care for to start companion calls.
               </p>
-              <Button onClick={onAddElder} variant="outline">
+              <Button onClick={onAddElder} variant="outline" className="border-border">
                 <Plus className="w-4 h-4 mr-2" />
-                Add elder
+                Add elderly
               </Button>
             </div>
           ) : (
@@ -94,10 +94,10 @@ export function EldersList({ onAddElder, onSelectElder }: EldersListProps) {
               {elders.map((elder) => (
                 <li
                   key={elder.id}
-                  className="bg-white rounded-xl border border-border p-4 flex items-center justify-between gap-4"
+                  className="paper-card p-4 flex items-center justify-between gap-4"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-12 h-12 rounded-full bg-[var(--amber-light)] flex items-center justify-center text-lg font-semibold text-[var(--amber-dark)] shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-lg font-semibold text-foreground shrink-0 font-heading">
                       {elder.name.slice(0, 2).toUpperCase()}
                     </div>
                     <div className="min-w-0">
@@ -119,7 +119,7 @@ export function EldersList({ onAddElder, onSelectElder }: EldersListProps) {
                     )}
                     <Button
                       size="sm"
-                      className="bg-[var(--sage)] hover:bg-[var(--sage)]/90"
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground"
                       onClick={() => handleStartCall(elder)}
                       disabled={isConnecting || isActive}
                     >
@@ -143,7 +143,7 @@ export function EldersList({ onAddElder, onSelectElder }: EldersListProps) {
           <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
             <Button
               onClick={endCall}
-              className="bg-[var(--coral)] hover:bg-[var(--coral)]/90 shadow-lg"
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground shadow-lg rounded-[28px]"
             >
               End call
             </Button>
