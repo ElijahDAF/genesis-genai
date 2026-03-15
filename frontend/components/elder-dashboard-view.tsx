@@ -408,13 +408,13 @@ export function ElderDashboardView({ elder, calls, memories, onBack, onRefresh }
               )}
             </div>
 
-            {/* Story of the week - from latest memory or fallback */}
+            {/* In today's review - from latest memory or fallback */}
             {
               <div className="paper-card p-6 bg-gradient-to-br from-primary/5 via-secondary/30 to-background border border-primary/10">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-xs font-semibold tracking-wider text-primary uppercase font-mono flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5" />
-                    Story of the week
+                    In today's review
                   </span>
                   <span className="text-xs text-muted-foreground">
                     · {latestMemory ? formatStoryDate(latestMemory.created_at) : FALLBACK.storyOfTheWeek.date}
@@ -432,10 +432,6 @@ export function ElderDashboardView({ elder, calls, memories, onBack, onRefresh }
                       <Button variant="outline" size="sm" className="border-border">
                         <Share2 className="w-4 h-4 mr-2" />
                         Share with family
-                      </Button>
-                      <Button variant="outline" size="sm" className="border-border">
-                        <FileText className="w-4 h-4 mr-2" />
-                        Export PDF
                       </Button>
                     </div>
                   </>

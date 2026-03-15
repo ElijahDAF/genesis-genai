@@ -299,11 +299,13 @@ export function VapiCallProvider({ children }: { children: ReactNode }) {
       setError("VAPI not initialized")
       return
     }
-    if (hasId(elder)) elderIdRef.current = elder.id
+    // Store elder ID for database saves (use 'demo' as fallback for test calls without ID)
+    elderIdRef.current = hasId(elder) ? elder.id : 'demo'
+    console.log("[Vapi] 🚀 Starting call for elder:", elderIdRef.current, elder.name)
+    
     setError(null)
     setIsConnecting(true)
     callIdRef.current = null // Reset call ID
-    console.log("[Vapi] 🚀 Starting call...")
     try {
       const call = await vapi.start(VAPI_ASSISTANT_ID, {
         variableValues: buildVariableValues(elder),
