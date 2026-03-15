@@ -1,4 +1,4 @@
-# EchoElders
+# Everly
 
 **AI companion calls for aging loved ones — companionship, medication reminders, and memory capture.**
 
