@@ -15,6 +15,11 @@ import type { Elder } from "@/app/types"
 /** Minimal elder-like shape for variable overrides (e.g. from Dashboard ElderData) */
 export type ElderLike = Pick<Elder, "name" | "age"> & Partial<Pick<Elder, "biography" | "hobbies" | "family_members" | "medications" | "personality_notes">>
 
+/** Elder with id (so we can register the call for webhook updates) */
+function hasId(elder: Elder | ElderLike): elder is Elder & { id: string } {
+  return "id" in elder && typeof (elder as Elder).id === "string"
+}
+
 type VapiContextValue = {
   isActive: boolean
   isConnecting: boolean
@@ -46,6 +51,7 @@ function buildVariableValues(elder: Elder | ElderLike): Record<string, string> {
 
 export function VapiCallProvider({ children }: { children: ReactNode }) {
   const vapiRef = useRef<Vapi | null>(null)
+  const elderIdRef = useRef<string | null>(null)
   const [isActive, setIsActive] = useState(false)
   const [isConnecting, setIsConnecting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -55,16 +61,29 @@ export function VapiCallProvider({ children }: { children: ReactNode }) {
     vapiRef.current = new Vapi(VAPI_PUBLIC_KEY)
 
     const vapi = vapiRef.current
-    const onStart = () => {
+    const onStart = (event: unknown) => {
       console.log("[VAPI] call-start — you should hear the assistant. Check speaker volume and browser tab is not muted.")
       setIsConnecting(false)
       setIsActive(true)
       setError(null)
+      // Register this call so the webhook can update our DB when the call ends
+      const callId = typeof event === "object" && event !== null && "call" in (event as object)
+        ? (event as { call?: { id?: string } }).call?.id
+        : undefined
+      const elderId = elderIdRef.current
+      if (callId && elderId) {
+        fetch("/api/call/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ vapiCallId: callId, elderId }),
+        }).catch((e) => console.warn("[VAPI] register call failed:", e))
+      }
     }
     const onEnd = () => {
       console.log("[VAPI] call-end")
       setIsActive(false)
       setIsConnecting(false)
+      elderIdRef.current = null
     }
     const onError = (e: unknown) => {
       console.error("[VAPI] error", e)
@@ -104,6 +123,7 @@ export function VapiCallProvider({ children }: { children: ReactNode }) {
       setError("VAPI not initialized")
       return
     }
+    if (hasId(elder)) elderIdRef.current = elder.id
     setError(null)
     setIsConnecting(true)
     try {
@@ -113,6 +133,7 @@ export function VapiCallProvider({ children }: { children: ReactNode }) {
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to start call")
       setIsConnecting(false)
+      elderIdRef.current = null
     }
   }, [])
 

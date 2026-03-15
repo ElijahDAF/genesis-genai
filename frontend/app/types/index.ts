@@ -4,6 +4,8 @@ export interface Elder {
   name: string
   age: number
   phone: string
+  /** Optional location e.g. "Toronto, ON" */
+  location?: string
   biography: string
   hobbies: string[]
   family_members: Record<string, any>
@@ -53,3 +55,28 @@ export interface Memory {
   created_at: string
 }
 
+/** Form/UI shape for adding an elder (registration flow) */
+export interface MedicationReminder {
+  id: string
+  name: string
+  time: string
+  days: string[]
+}
+
+export interface ElderData {
+  firstName: string
+  lastName: string
+  phone: string
+  dateOfBirth: string
+  location: string
+  relationship: string
+  thingsTheyLove: string
+  medicationSchedule: MedicationReminder[]
+}
+
+export interface CaregiverData {
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+}

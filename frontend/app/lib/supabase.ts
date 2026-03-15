@@ -46,13 +46,21 @@ export async function createCallLog(log: Partial<CallLog>): Promise<CallLog> {
     return data
 }
 
+export async function getCallLogByVapiCallId(vapiCallId: string): Promise<CallLog | null> {
+    const { data, error } = await supabaseAdmin
+        .from("call_logs")
+        .select("*")
+        .eq("vapi_call_id", vapiCallId)
+        .maybeSingle()
+    if (error) throw error
+    return data
+}
+
 export async function updateCallLog(vapiCallId: string, updates: Partial<CallLog>) {
-    // CHANGED: update by vapi_call_id, not internal id
     const { error } = await supabaseAdmin
         .from("call_logs")
         .update(updates)
         .eq("vapi_call_id", vapiCallId)
-
     if (error) throw error
 }
 
@@ -60,4 +68,24 @@ export async function createMemory(memory: Partial<Memory>) {
     const { error } = await supabaseAdmin.from("memories").insert(memory)
 
     if (error) throw error
+}
+
+export async function getCallLogsByElderId(elderId: string): Promise<CallLog[]> {
+    const { data, error } = await supabaseAdmin
+        .from("call_logs")
+        .select("*")
+        .eq("elder_id", elderId)
+        .order("started_at", { ascending: false })
+    if (error) throw error
+    return data ?? []
+}
+
+export async function getMemoriesByElderId(elderId: string): Promise<Memory[]> {
+    const { data, error } = await supabaseAdmin
+        .from("memories")
+        .select("*")
+        .eq("elder_id", elderId)
+        .order("created_at", { ascending: false })
+    if (error) throw error
+    return data ?? []
 }
